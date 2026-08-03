@@ -95,7 +95,7 @@ function HomePage() {
     return () => clearInterval(id);
   }, []);
 
-  const verse = verses[verseIndex];
+  const verse = verses[verseIndex] ?? verses[0]!;
 
   return (
     <>
