@@ -17,13 +17,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:px-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
-            <img src={logoAsset.url} alt="" className="h-12 w-12 object-contain" />
-            <div>
-              <p className="text-2xl text-primary">Ruth Mavis</p>
-              <p className="font-sans text-[0.62rem] tracking-[0.34em] text-gold uppercase">
-                Accessories
-              </p>
-            </div>
+            <img src={logoAsset.url} alt="Ruth Mavis Accessories" className="h-24 w-auto object-contain" />
           </div>
           <Flourish className="mt-4 -ml-1 w-32" />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
