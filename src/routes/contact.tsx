@@ -38,7 +38,7 @@ const details = [
     value: contactDetails.tiktokHandle,
     href: contactDetails.tiktok,
   },
-  { icon: MapPin, label: "Location", value: contactDetails.location },
+  { icon: MapPin, label: "Location", value: "Nelspruit, Mpumalanga, 1201" },
 ];
 
 const inputClass =

@@ -7,7 +7,7 @@ export const contactDetails = {
   phone: "+27 71 234 5678",
   tiktok: "https://www.tiktok.com/@ruthmavisaccessories",
   tiktokHandle: "@ruthmavisaccessories",
-  location: "Gauteng, South Africa",
+  location: "Nelspruit, Mpumalanga, 1201",
 };
 
 export function SiteFooter() {
