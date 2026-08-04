@@ -32,13 +32,7 @@ export function SiteNav() {
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-2 sm:px-8">
         <Link to="/" className="group flex items-center gap-3 min-w-0" onClick={() => setOpen(false)}>
-          <img src={logoAsset.url} alt="Ruth Mavis Accessories" className="h-12 w-12 object-contain" />
-          <div className="flex flex-col leading-none">
-            <span className="text-lg tracking-wide text-primary sm:text-xl">Ruth Mavis</span>
-            <span className="font-sans text-[0.6rem] tracking-[0.34em] text-gold uppercase">
-              Accessories
-            </span>
-          </div>
+          <img src={logoAsset.url} alt="Ruth Mavis Accessories" className="h-16 w-auto object-contain transition-transform group-hover:scale-105" />
         </Link>
 
         <div className="hidden items-center gap-9 md:flex">
