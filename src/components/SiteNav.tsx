@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import logoAsset from "@/assets/logo.png.asset.json";
 
 const links = [
   { to: "/", label: "Home" },
@@ -29,12 +30,15 @@ export function SiteNav() {
           : "border-b border-transparent bg-transparent",
       )}
     >
-      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-        <Link to="/" className="group flex min-w-0 flex-col leading-none" onClick={() => setOpen(false)}>
-          <span className="text-lg tracking-wide text-primary sm:text-xl">Ruth Mavis</span>
-          <span className="font-sans text-[0.6rem] tracking-[0.34em] text-gold uppercase">
-            Accessories
-          </span>
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-2 sm:px-8">
+        <Link to="/" className="group flex items-center gap-3 min-w-0" onClick={() => setOpen(false)}>
+          <img src={logoAsset.url} alt="Ruth Mavis Accessories" className="h-12 w-12 object-contain" />
+          <div className="flex flex-col leading-none">
+            <span className="text-lg tracking-wide text-primary sm:text-xl">Ruth Mavis</span>
+            <span className="font-sans text-[0.6rem] tracking-[0.34em] text-gold uppercase">
+              Accessories
+            </span>
+          </div>
         </Link>
 
         <div className="hidden items-center gap-9 md:flex">
