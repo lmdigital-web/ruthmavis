@@ -32,7 +32,14 @@ export function SiteNav() {
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-2 sm:px-8">
         <Link to="/" className="group flex items-center gap-3 min-w-0" onClick={() => setOpen(false)}>
-          <img src={logoAsset.url} alt="Ruth Mavis Accessories" className="h-16 w-auto object-contain transition-transform group-hover:scale-105" />
+          <img
+            src={logoAsset.url}
+            alt="Ruth Mavis Accessories"
+            className={cn(
+              "h-auto object-contain transition-all duration-500 group-hover:scale-105",
+              scrolled ? "w-16" : "w-32 sm:w-40",
+            )}
+          />
         </Link>
 
         <div className="hidden items-center gap-9 md:flex">
