@@ -235,19 +235,13 @@ function HomePage() {
 
       {/* Social proof / TikTok */}
       <section className="px-6 py-24 sm:px-8">
-        <Reveal className="mx-auto max-w-4xl rounded-[2rem] border border-gold/25 bg-primary px-8 py-14 text-center shadow-[var(--shadow-soft)] relative overflow-hidden group">
-          <img
-            src={heroFloral}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover opacity-10 mix-blend-overlay pointer-events-none"
-          />
-          <div className="relative z-10 flex flex-col items-center">
+        <Reveal className="mx-auto max-w-4xl rounded-[2rem] border border-gold/25 bg-blush/40 px-8 py-14 text-center shadow-[var(--shadow-soft)]">
           <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-gold-soft">
             <Music2 size={22} />
           </span>
-          <h2 className="mt-6 text-3xl text-cream sm:text-4xl">See It All on TikTok</h2>
-          <Flourish className="mx-auto mt-4 w-36 text-gold-soft" />
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-cream/80 sm:text-base">
+          <h2 className="mt-6 text-3xl text-primary sm:text-4xl">See It All on TikTok</h2>
+          <Flourish className="mx-auto mt-4 w-36" />
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             Unboxings, combo reveals and behind-the-stitches clips — join the women already gifting
             with us.
           </p>
@@ -255,11 +249,10 @@ function HomePage() {
             href={contactDetails.tiktok}
             target="_blank"
             rel="noreferrer"
-            className="mt-8 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-primary/20 backdrop-blur-sm px-8 py-3.5 font-sans text-sm tracking-wide text-cream transition-all duration-300 hover:-translate-y-0.5 hover:border-gold hover:bg-primary/40 hover:shadow-[var(--shadow-soft)]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card px-8 py-3.5 font-sans text-sm tracking-wide text-primary transition-all duration-300 hover:-translate-y-0.5 hover:border-gold hover:shadow-[var(--shadow-soft)]"
           >
             Follow {contactDetails.tiktokHandle}
           </a>
-          </div>
         </Reveal>
       </section>
     </>
