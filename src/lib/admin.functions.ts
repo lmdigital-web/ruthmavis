@@ -68,7 +68,11 @@ export const updateAdminProduct = createServerFn({ method: "POST" })
     if (profile?.role !== 'admin') throw new Error("Unauthorized");
 
     const { id, ...updates } = data;
-    const { error } = await supabase.from("products").update(updates).eq("id", id);
+    const { error } = await supabase.from("products").update({
+      is_active: updates.is_active ?? undefined,
+      stock_quantity: updates.stock_quantity ?? undefined,
+      price: updates.price ?? undefined,
+    }).eq("id", id);
     if (error) throw error;
     return { success: true };
   });
