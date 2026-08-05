@@ -84,11 +84,11 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
                              {item.quantity}
                            </span>
                            <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="rounded-full p-1 hover:bg-gold/10"
-                          >
-                            <Plus size={12} />
-                          </button>
+                             onClick={() => updateQuantity(`${item.id}-${item.variantId || 'base'}`, item.quantity + 1)}
+                             className="rounded-full p-1 hover:bg-gold/10"
+                           >
+                             <Plus size={12} />
+                           </button>
                         </div>
                         <span className="font-serif text-sm font-semibold text-burgundy">
                           R {(item.price * item.quantity).toFixed(2)}
