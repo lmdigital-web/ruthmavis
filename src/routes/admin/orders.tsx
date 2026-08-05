@@ -107,7 +107,7 @@ function AdminOrders() {
                     </td>
                     <td className="px-6 py-4">
                       <Select
-                        defaultValue={order.status}
+                        defaultValue={order.status ?? 'pending'}
                         onValueChange={(val: any) => {
                           statusMutation.mutate({ orderId: order.id, status: val });
                         }}
