@@ -7,9 +7,8 @@ import { Reveal } from '@/components/Reveal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, ShoppingBag, Filter } from 'lucide-react';
+import { Search, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import { z } from 'zod';
 
 const shopSearchSchema = z.object({
@@ -42,13 +41,13 @@ function ShopPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     navigate({
-      search: (prev) => ({ ...prev, search: localSearch }),
+      search: (prev: any) => ({ ...prev, search: localSearch }),
     });
   };
 
   const handleCategoryChange = (val: string) => {
     navigate({
-      search: (prev) => ({ ...prev, category: val }),
+      search: (prev: any) => ({ ...prev, category: val }),
     });
   };
 
