@@ -29,9 +29,12 @@ function RegisterComponent() {
       email,
       password,
       options: {
-        data: {
-          full_name: fullName,
-        },
+          data: {
+            full_name: fullName,
+            address,
+            city,
+            postal_code: postalCode,
+          },
       },
     });
 
