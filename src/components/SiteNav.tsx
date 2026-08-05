@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User as UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 import logoAsset from "@/assets/logo.png.asset.json";
 
 const links = [
@@ -13,6 +14,7 @@ const links = [
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -54,6 +56,18 @@ export function SiteNav() {
               <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-gold transition-transform duration-300 group-hover:scale-x-100 group-data-[status=active]:scale-x-100" />
             </Link>
           ))}
+          
+          <div className="ml-2 h-4 w-px bg-gold/30" />
+          
+          {!loading && (
+            <Link
+              to={user ? "/account" : "/login"}
+              className="flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-1.5 font-sans text-sm tracking-wide text-primary transition-all hover:bg-gold/15 active:scale-95"
+            >
+              <UserIcon size={16} className="text-gold" />
+              {user ? "Account" : "Login"}
+            </Link>
+          )}
         </div>
 
         <button
@@ -83,6 +97,16 @@ export function SiteNav() {
               {link.label}
             </Link>
           ))}
+          {!loading && (
+            <Link
+              to={user ? "/account" : "/login"}
+              onClick={() => setOpen(false)}
+              className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-burgundy py-3 font-sans text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              <UserIcon size={16} />
+              {user ? "My Account" : "Sign In"}
+            </Link>
+          )}
         </div>
       </div>
     </header>
