@@ -20,11 +20,11 @@ export const Route = createFileRoute("/")({
         content:
           "Decorative Bibles, Christian devotionals, handmade crochet bags and curated gift combos — thoughtfully made in South Africa. Shop coming soon.",
       },
-      { property: "og:title", content: "Faith, Beauty & Grace in Every Gift" },
+      { property: "og:title", content: "Ruth Mavis Accessories | Faith-Filled Gifts & Bibles" },
       {
         property: "og:description",
         content:
-          "Curated Christian gifting from South Africa — decorative Bibles, devotionals, crochet accessories and combo bundles.",
+          "Decorative Bibles, Christian devotionals, handmade crochet bags and curated gift combos — thoughtfully made in South Africa. Shop coming soon.",
       },
     ],
   }),

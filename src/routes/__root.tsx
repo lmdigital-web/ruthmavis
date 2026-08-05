@@ -86,17 +86,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Ruth Mavis Accessories — decorative Bibles, devotionals, handmade crochet bags and curated Christian gift combos from South Africa.",
+          "Decorative Bibles, Christian devotionals, handmade crochet bags and curated gift combos — thoughtfully made in South Africa. Shop coming soon.",
       },
       { name: "author", content: "Ruth Mavis Accessories" },
-      { property: "og:title", content: "Ruth Mavis Accessories" },
+      { property: "og:title", content: "Ruth Mavis Accessories | Faith-Filled Gifts & Bibles" },
       {
         property: "og:description",
-        content: "Faith, beauty and grace in every gift — curated Christian gifting from South Africa.",
+        content: "Decorative Bibles, Christian devotionals, handmade crochet bags and curated gift combos — thoughtfully made in South Africa. Shop coming soon.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Ruth Mavis Accessories | Faith-Filled Gifts & Bibles" },
+      { name: "twitter:description", content: "Decorative Bibles, Christian devotionals, handmade crochet bags and curated gift combos — thoughtfully made in South Africa. Shop coming soon." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd108466-57ce-453b-a0e5-8ea381aa1d90/id-preview-d1821cde--70c0c8ca-9632-419d-831e-321abab485ef.lovable.app-1785939619044.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd108466-57ce-453b-a0e5-8ea381aa1d90/id-preview-d1821cde--70c0c8ca-9632-419d-831e-321abab485ef.lovable.app-1785939619044.png" },
     ],
     links: [
       {
