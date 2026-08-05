@@ -91,8 +91,9 @@ function LoginComponent() {
               </Link>
             </div>
           </CardFooter>
-        </form>
-      </Card>
+         </form>
+       </Card>
+      </div>
     </div>
   );
 }
