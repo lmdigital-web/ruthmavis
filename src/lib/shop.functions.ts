@@ -60,3 +60,53 @@ export const getCategories = createServerFn({ method: "GET" })
     if (error) throw error;
     return categories || [];
   });
+
+export const getProductVariants = createServerFn({ method: "GET" })
+  .validator((data) => z.string().parse(data))
+  .handler(async ({ data: productId }) => {
+    const { data: variants, error } = await supabase
+      .from("product_variants")
+      .select("*")
+      .eq("product_id", productId)
+      .order("created_at");
+
+    if (error) throw error;
+    return variants || [];
+  });
+
+export const uploadCustomFile = createServerFn({ method: "POST" })
+  .validator((data) => z.object({
+    fileName: z.string(),
+    fileBase64: z.string(),
+    userId: z.string(),
+  }).parse(data))
+  .handler(async ({ data: { fileName, fileBase64, userId } }) => {
+    // Convert base64 to buffer
+    const buffer = Buffer.from(fileBase64, 'base64');
+    
+    // Generate unique filename with timestamp
+    const timestamp = Date.now();
+    const safeName = fileName.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
+    const filePath = `${userId}/${timestamp}_${safeName}`;
+
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from('customer-uploads')
+      .upload(filePath, buffer, {
+        contentType: 'application/octet-stream',
+        upsert: false,
+      });
+
+    if (uploadError) throw uploadError;
+
+    // Get the public URL
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from('customer-uploads')
+      .getPublicUrl(filePath);
+
+    return {
+      path: filePath,
+      url: publicUrl,
+    };
+  });

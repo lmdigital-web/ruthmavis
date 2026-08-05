@@ -36,48 +36,59 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
             <ScrollArea className="h-full pr-4">
               <div className="space-y-6">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gold/10">
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="flex flex-1 flex-col justify-between py-1">
-                      <div className="flex justify-between gap-2">
-                        <Link 
-                          to="/product/$slug" 
-                          params={{ slug: item.slug }}
-                          onClick={() => onOpenChange(false)}
-                          className="font-medium text-primary hover:underline line-clamp-1"
-                        >
-                          {item.name}
-                        </Link>
-                        <button 
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-muted-foreground hover:text-burgundy"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center rounded-full border border-gold/20 bg-white/50 px-1 py-1">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="rounded-full p-1 hover:bg-gold/10"
-                          >
-                            <Minus size={12} />
-                          </button>
-                          <span className="w-8 text-center text-xs font-medium">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="rounded-full p-1 hover:bg-gold/10"
-                          >
-                            <Plus size={12} />
-                          </button>
+                   <div key={`${item.id}-${item.variantId || 'base'}`} className="flex gap-4 pb-4 border-b border-gold/10">
+                     <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gold/10">
+                       <img
+                         src={item.image_url}
+                         alt={item.name}
+                         className="h-full w-full object-cover"
+                       />
+                     </div>
+                     <div className="flex flex-1 flex-col justify-between py-1">
+                       <div className="flex justify-between gap-2">
+                         <Link 
+                           to="/product/$slug" 
+                           params={{ slug: item.slug }}
+                           onClick={() => onOpenChange(false)}
+                           className="font-medium text-primary hover:underline line-clamp-1"
+                         >
+                           {item.name}
+                         </Link>
+                         <button 
+                           onClick={() => removeFromCart(`${item.id}-${item.variantId || 'base'}`)}
+                           className="text-muted-foreground hover:text-burgundy"
+                         >
+                           <Trash2 size={16} />
+                         </button>
+                       </div>
+                       
+                       {/* Show variant if selected */}
+                       {item.variantLabel && (
+                         <p className="text-xs text-muted-foreground">{item.variantLabel}</p>
+                       )}
+                       
+                       {/* Show custom file if uploaded */}
+                       {item.customFileName && (
+                         <p className="text-xs text-green-600">📎 {item.customFileName}</p>
+                       )}
+                       
+                       <div className="flex items-center justify-between">
+                         <div className="flex items-center rounded-full border border-gold/20 bg-white/50 px-1 py-1">
+                           <button
+                             onClick={() => updateQuantity(`${item.id}-${item.variantId || 'base'}`, item.quantity - 1)}
+                             className="rounded-full p-1 hover:bg-gold/10"
+                           >
+                             <Minus size={12} />
+                           </button>
+                           <span className="w-8 text-center text-xs font-medium">
+                             {item.quantity}
+                           </span>
+                           <button
+                             onClick={() => updateQuantity(`${item.id}-${item.variantId || 'base'}`, item.quantity + 1)}
+                             className="rounded-full p-1 hover:bg-gold/10"
+                           >
+                             <Plus size={12} />
+                           </button>
                         </div>
                         <span className="font-serif text-sm font-semibold text-burgundy">
                           R {(item.price * item.quantity).toFixed(2)}

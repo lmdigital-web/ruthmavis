@@ -7,6 +7,10 @@ export type CartItem = {
   image_url: string;
   quantity: number;
   slug: string;
+  variantId?: string;
+  variantLabel?: string;
+  customFileUrl?: string;
+  customFileName?: string;
 };
 
 export function useCart() {
@@ -29,29 +33,55 @@ export function useCart() {
     localStorage.setItem('ruth_mavis_cart', JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product: { id: string; name: string; price: number; image_url: string; slug: string }, quantity = 1) => {
+  const addToCart = (product: Omit<CartItem, 'quantity'>, quantity = 1) => {
     setItems((current) => {
-      const existing = current.find((item) => item.id === product.id);
+      const itemKey = product.variantId 
+        ? `${product.id}-${product.variantId}` 
+        : product.id;
+      const existing = current.find((item) => {
+        const existingKey = item.variantId 
+          ? `${item.id}-${item.variantId}` 
+          : item.id;
+        return existingKey === itemKey;
+      });
       if (existing) {
-        return current.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-        );
+        return current.map((item) => {
+          const existingKey = item.variantId 
+            ? `${item.id}-${item.variantId}` 
+            : item.id;
+          return existingKey === itemKey 
+            ? { ...item, quantity: item.quantity + quantity } 
+            : item;
+        });
       }
       return [...current, { ...product, quantity }];
     });
   };
 
-  const removeFromCart = (id: string) => {
-    setItems((current) => current.filter((item) => item.id !== id));
+  const removeFromCart = (key: string) => {
+    setItems((current) => {
+      // key can be either just 'id' or 'id-variantId'
+      return current.filter((item) => {
+        const itemKey = item.variantId 
+          ? `${item.id}-${item.variantId}` 
+          : item.id;
+        return itemKey !== key;
+      });
+    });
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (key: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeFromCart(key);
       return;
     }
     setItems((current) =>
-      current.map((item) => (item.id === id ? { ...item, quantity } : item))
+      current.map((item) => {
+        const itemKey = item.variantId 
+          ? `${item.id}-${item.variantId}` 
+          : item.id;
+        return itemKey === key ? { ...item, quantity } : item;
+      })
     );
   };
 
