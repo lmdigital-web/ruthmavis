@@ -18,7 +18,7 @@ export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const { totalItems } = useCart();
 
   useEffect(() => {
@@ -75,6 +75,15 @@ export function SiteNav() {
               </span>
             )}
           </button>
+
+          {!loading && user && profile?.role === 'admin' && (
+            <Link
+              to="/admin"
+              className="font-sans text-sm tracking-wide text-burgundy font-medium hover:text-burgundy/80"
+            >
+              Admin
+            </Link>
+          )}
 
           {!loading && (
             <Link
