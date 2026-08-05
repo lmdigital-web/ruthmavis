@@ -112,7 +112,7 @@ function AdminOrders() {
                           statusMutation.mutate({ orderId: order.id, status: val });
                         }}
                       >
-                        <SelectTrigger className={`h-8 w-32 border-none font-medium text-xs ${getStatusColor(order.status)}`}>
+                        <SelectTrigger className={`h-8 w-32 border-none font-medium text-xs ${getStatusColor(order.status ?? 'pending')}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
