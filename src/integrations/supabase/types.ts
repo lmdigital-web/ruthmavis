@@ -81,24 +81,30 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          shipping_amount: number | null
           shipping_details: Json | null
           status: string | null
+          tax_amount: number | null
           total_amount: number
           user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          shipping_amount?: number | null
           shipping_details?: Json | null
           status?: string | null
+          tax_amount?: number | null
           total_amount: number
           user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          shipping_amount?: number | null
           shipping_details?: Json | null
           status?: string | null
+          tax_amount?: number | null
           total_amount?: number
           user_id?: string | null
         }
@@ -227,6 +233,33 @@ export type Database = {
           id?: string
           role?: string | null
           shipping_address?: Json | null
+        }
+        Relationships: []
+      }
+      shipping_rates: {
+        Row: {
+          created_at: string | null
+          free_shipping_threshold: number | null
+          id: string
+          price: number
+          region: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          free_shipping_threshold?: number | null
+          id?: string
+          price: number
+          region: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          free_shipping_threshold?: number | null
+          id?: string
+          price?: number
+          region?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
