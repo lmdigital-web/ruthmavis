@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { SectionHeading } from '@/components/SectionHeading';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { getShippingRates } from '@/lib/shop.functions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery } from '@tanstack/react-query';
 
 export const initializePayment = createServerFn({ method: 'POST' })
   .validator((data: { email: string; amount: number; metadata: any }) => 
@@ -53,15 +56,42 @@ function CheckoutPage() {
   const [shipping, setShipping] = useState({
     address: '',
     city: '',
-    postalCode: ''
+    postalCode: '',
+    region: ''
+  });
+
+  const { data: shippingRates } = useQuery({
+    queryKey: ['shipping-rates'],
+    queryFn: () => getShippingRates()
   });
 
   useEffect(() => {
     const metadata = user?.user_metadata as any;
     if (metadata?.shipping_address) {
-      setShipping(metadata.shipping_address);
+      setShipping(s => ({
+        ...s,
+        ...metadata.shipping_address
+      }));
     }
   }, [user]);
+
+  const selectedRate = useMemo(() => {
+    if (!shipping.region || !shippingRates) return null;
+    return shippingRates.find(r => r.region === shipping.region);
+  }, [shipping.region, shippingRates]);
+
+  const shippingAmount = useMemo(() => {
+    if (!selectedRate) return 0;
+    if (selectedRate.free_shipping_threshold && totalPrice >= Number(selectedRate.free_shipping_threshold)) {
+      return 0;
+    }
+    return Number(selectedRate.price);
+  }, [selectedRate, totalPrice]);
+
+  // Placeholder for tax (e.g. 15% VAT in SA)
+  const taxRate = 0.15;
+  const taxAmount = (totalPrice + shippingAmount) * taxRate;
+  const grandTotal = totalPrice + shippingAmount + taxAmount;
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,9 +102,11 @@ function CheckoutPage() {
         .from('orders')
         .insert({
           user_id: user?.id ?? null,
-          total_amount: totalPrice,
+          total_amount: grandTotal,
           status: 'pending',
-          shipping_details: shipping as any
+          shipping_details: shipping as any,
+          shipping_amount: shippingAmount,
+          tax_amount: taxAmount
         })
         .select()
         .single();
@@ -96,7 +128,7 @@ function CheckoutPage() {
       const paymentData = await initializePayment({
         data: {
           email: user?.email!,
-          amount: totalPrice,
+          amount: grandTotal,
           metadata: {
             order_id: order.id,
             user_id: user?.id
@@ -134,13 +166,36 @@ function CheckoutPage() {
           
           <div className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="region">Region / Province</Label>
+              <Select 
+                value={shipping.region} 
+                onValueChange={(val) => setShipping(s => ({ ...s, region: val }))}
+                required
+              >
+                <SelectTrigger className="border-gold/20 focus:border-gold bg-white">
+                  <SelectValue placeholder="Select a region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {shippingRates?.map((rate: any) => (
+                    <SelectItem key={rate.id} value={rate.region}>
+                      {rate.region}
+                    </SelectItem>
+                  ))}
+                  {(!shippingRates || shippingRates.length === 0) && (
+                    <SelectItem value="Mpumalanga">Mpumalanga (Default)</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
               <Input 
                 id="address" 
                 required 
                 value={shipping.address}
                 onChange={e => setShipping(s => ({ ...s, address: e.target.value }))}
-                className="border-gold/20 focus:border-gold"
+                className="border-gold/20 focus:border-gold bg-white"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -151,7 +206,7 @@ function CheckoutPage() {
                   required 
                   value={shipping.city}
                   onChange={e => setShipping(s => ({ ...s, city: e.target.value }))}
-                  className="border-gold/20 focus:border-gold"
+                  className="border-gold/20 focus:border-gold bg-white"
                 />
               </div>
               <div className="space-y-2">
@@ -161,7 +216,7 @@ function CheckoutPage() {
                   required 
                   value={shipping.postalCode}
                   onChange={e => setShipping(s => ({ ...s, postalCode: e.target.value }))}
-                  className="border-gold/20 focus:border-gold"
+                  className="border-gold/20 focus:border-gold bg-white"
                 />
               </div>
             </div>
@@ -172,23 +227,46 @@ function CheckoutPage() {
             disabled={loading}
             className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90"
           >
-            {loading ? 'Processing...' : `Pay R ${totalPrice.toFixed(2)}`}
+            {loading ? 'Processing...' : `Pay R ${grandTotal.toFixed(2)}`}
           </Button>
         </form>
 
         <div className="space-y-6">
           <h3 className="text-xl font-serif text-primary">Order Summary</h3>
-          <div className="rounded-2xl border border-gold/10 bg-cream/30 p-8">
-            {items.map(item => (
-              <div key={item.id} className="flex justify-between py-2 text-sm border-b border-gold/5 last:border-0">
-                <span>{item.name} (x{item.quantity})</span>
-                <span className="font-medium">R {(item.price * item.quantity).toFixed(2)}</span>
-              </div>
-            ))}
-            <div className="mt-6 flex justify-between border-t border-gold/10 pt-4 text-lg font-bold">
-              <span>Total</span>
-              <span>R {totalPrice.toFixed(2)}</span>
+          <div className="rounded-2xl border border-gold/10 bg-cream/30 p-8 space-y-4">
+            <div className="space-y-2">
+              {items.map(item => (
+                <div key={`${item.id}-${item.variantId}`} className="flex justify-between py-2 text-sm border-b border-gold/5 last:border-0">
+                  <span>{item.name} (x{item.quantity})</span>
+                  <span className="font-medium">R {(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
             </div>
+
+            <div className="space-y-2 pt-4 border-t border-gold/10">
+              <div className="flex justify-between text-sm">
+                <span>Subtotal</span>
+                <span>R {totalPrice.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Shipping {shipping.region ? `(${shipping.region})` : ''}</span>
+                <span>{shippingAmount === 0 ? 'FREE' : `R ${shippingAmount.toFixed(2)}`}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>VAT (15%)</span>
+                <span>R {taxAmount.toFixed(2)}</span>
+              </div>
+              <div className="mt-6 flex justify-between pt-4 text-xl font-bold text-primary">
+                <span>Total</span>
+                <span>R {grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            {selectedRate?.free_shipping_threshold && totalPrice < Number(selectedRate.free_shipping_threshold) && (
+              <p className="text-xs text-burgundy italic mt-2 text-center">
+                Add R {(Number(selectedRate.free_shipping_threshold) - totalPrice).toFixed(2)} more for FREE shipping!
+              </p>
+            )}
           </div>
         </div>
       </div>
