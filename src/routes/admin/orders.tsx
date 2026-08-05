@@ -29,7 +29,8 @@ function AdminOrders() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: updateStatusFn,
+    mutationFn: (variables: { orderId: string; status: 'pending' | 'processing' | 'completed' | 'cancelled' }) => 
+      updateStatusFn({ data: variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       toast.success('Order status updated');
