@@ -82,25 +82,22 @@ function ProductPage() {
   const finalPrice = product.price + variantPrice;
 
   const handleAddToCart = () => {
-    const item: Omit<typeof product & { quantity?: number }, 'quantity'> & Omit<import('@/hooks/use-cart').CartItem, 'quantity'> = {
+    const cartItem = {
       id: product.id,
       name: product.name,
       price: finalPrice,
       image_url: product.image_url,
       slug: product.slug,
+      ...(selectedVariant && {
+        variantId: selectedVariant,
+        variantLabel: getVariantLabel(selectedVariantData),
+      }),
+      ...(customFile && {
+        customFileUrl: customFile.url,
+        customFileName: customFile.name,
+      }),
     };
-    
-    if (selectedVariant) {
-      item.variantId = selectedVariant;
-      item.variantLabel = getVariantLabel(selectedVariantData);
-    }
-    
-    if (customFile) {
-      item.customFileUrl = customFile.url;
-      item.customFileName = customFile.name;
-    }
-    
-    addToCart(item, quantity);
+    addToCart(cartItem as any, quantity);
     toast.success(`${product.name} added to your bag!`);
   };
 
