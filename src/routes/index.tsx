@@ -116,7 +116,7 @@ function HomePage() {
         <BotanicalSprig className="float-slow absolute top-28 -left-6 -z-10 h-56 w-44 opacity-70 sm:left-6 md:h-72 md:w-56" />
         <BotanicalSprig className="float-slow absolute -right-8 bottom-10 -z-10 h-52 w-40 rotate-[160deg] opacity-60 md:h-64 md:w-52" />
 
-        <div className="mx-auto flex min-h-[85vh] max-w-4xl flex-col items-center justify-center px-6 py-12 text-center sm:px-8">
+        <div className="mx-auto flex min-h-[92vh] max-w-4xl flex-col items-center justify-center px-6 pt-32 pb-24 text-center sm:px-8">
           <span className="rise-in font-sans text-[0.68rem] tracking-[0.36em] text-gold uppercase">
             Christian Gifting &amp; Accessories · South Africa
           </span>

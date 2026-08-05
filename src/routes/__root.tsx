@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { useRouterState } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -145,7 +146,7 @@ function RootComponent() {
       <AuthProvider>
         <div className="flex min-h-screen flex-col bg-background relative overflow-x-hidden">
           <SiteNav />
-          <main key={pathname} className="page-enter flex-1 flex flex-col pt-20 md:pt-24">
+          <main key={pathname} className={cn("page-enter flex-1 flex flex-col", pathname === "/" ? "pt-0" : "pt-20 md:pt-24")}>
             <Outlet />
           </main>
           <SiteFooter />
