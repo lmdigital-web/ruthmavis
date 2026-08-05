@@ -150,7 +150,73 @@ function ProductPage() {
               <div className="prose prose-stone">
                 <p className="text-lg leading-relaxed text-muted-foreground">
                   {product.description}
-                </p>
+               </p>
+              </div>
+
+              {/* Variants Section */}
+              {variants && variants.length > 0 && (
+                <div className="space-y-4 pt-6">
+                  <h3 className="font-serif text-lg font-semibold text-primary">Choose Variant</h3>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    {variants.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariant(variant.id)}
+                        className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
+                          selectedVariant === variant.id
+                            ? 'border-burgundy bg-burgundy/10 text-burgundy'
+                            : 'border-gold/20 bg-white text-muted-foreground hover:border-gold/50'
+                        } ${variant.stock_quantity === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={variant.stock_quantity === 0}
+                      >
+                        <div>{getVariantLabel(variant)}</div>
+                        {variant.price_modifier !== 0 && (
+                          <div className="text-xs text-gold">
+                            {variant.price_modifier > 0 ? '+' : ''} R {variant.price_modifier.toFixed(2)}
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* File Upload Section */}
+              <div className="space-y-4 pt-6">
+                <h3 className="font-serif text-lg font-semibold text-primary">Add Custom Design (Optional)</h3>
+                <div className="space-y-3">
+                  {customFile ? (
+                    <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Upload size={18} className="text-green-600" />
+                        <div>
+                          <p className="text-sm font-medium text-green-900">{customFile.name}</p>
+                          <p className="text-xs text-green-700">Ready for production</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setCustomFile(null)}
+                        className="p-1 hover:bg-green-100 rounded transition-colors"
+                      >
+                        <X size={16} className="text-green-600" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gold/30 rounded-lg cursor-pointer hover:border-gold/50 hover:bg-gold/5 transition-all">
+                      <Upload size={24} className="text-gold mb-2" />
+                      <span className="text-sm font-medium text-gold">Click to upload design</span>
+                      <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</span>
+                      <input 
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={handleFileUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-6 pt-6 border-t border-gold/10">
