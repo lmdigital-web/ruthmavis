@@ -1,12 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X, User as UserIcon } from "lucide-react";
+import { Menu, X, User as UserIcon, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useCart } from "@/hooks/use-cart";
+import { CartDrawer } from "./CartDrawer";
 import logoAsset from "@/assets/logo.png.asset.json";
 
 const links = [
   { to: "/", label: "Home" },
+  { to: "/shop", label: "Shop" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ] as const;
@@ -14,7 +17,9 @@ const links = [
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const { user, loading } = useAuth();
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -59,6 +64,18 @@ export function SiteNav() {
           
           <div className="ml-2 h-4 w-px bg-gold/30" />
           
+          <button
+            onClick={() => setCartOpen(true)}
+            className="group relative flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 px-3 py-1.5 text-primary transition-all hover:bg-gold/10"
+          >
+            <ShoppingBag size={18} className="text-gold" />
+            {totalItems > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-burgundy text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
+                {totalItems}
+              </span>
+            )}
+          </button>
+
           {!loading && (
             <Link
               to={user ? "/account" : "/login"}

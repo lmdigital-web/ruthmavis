@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Gift, HeartHandshake, Music2, Package, Sparkles } from "lucide-react";
+import { Gift, HeartHandshake, Music2, Package, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -34,21 +34,25 @@ export const Route = createFileRoute("/")({
 const collections = [
   {
     title: "Decorative Bibles",
+    slug: "decorative-bibles",
     copy: "Gift-worthy Bibles with gilded pages and soft covers.",
     image: imgBibles,
   },
   {
     title: "Devotionals",
+    slug: "devotionals",
     copy: "Praying Wife, Boldness, My Creative Bible and more.",
     image: imgDevotionals,
   },
   {
     title: "Crochet Bags",
+    slug: "handmade-crochet",
     copy: "Handmade bags, purses and little pouches.",
     image: imgCrochet,
   },
   {
     title: "Gift Combos",
+    slug: "gift-combos",
     copy: "Bundled sets ready to wrap and give.",
     image: imgCombos,
   },
@@ -127,15 +131,12 @@ function HomePage() {
           </p>
           <div className="rise-in mt-10 flex flex-col items-center gap-4 [animation-delay:440ms] sm:flex-row">
             <Link
-              to="/contact"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 font-sans text-sm tracking-wide text-primary-foreground shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90"
+              to="/shop"
+              className="group inline-flex items-center gap-2 rounded-full bg-burgundy px-8 py-3.5 font-sans text-sm tracking-wide text-white shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-burgundy/90"
             >
-              <Sparkles size={16} className="text-gold-soft" />
-              Get in Touch
+              <ShoppingBag size={16} className="text-gold" />
+              Shop Collection
             </Link>
-            <span className="font-sans text-xs tracking-[0.28em] text-gold uppercase">
-              Shop coming soon
-            </span>
           </div>
         </div>
       </section>
