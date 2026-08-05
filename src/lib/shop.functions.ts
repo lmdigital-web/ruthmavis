@@ -110,3 +110,14 @@ export const uploadCustomFile = createServerFn({ method: "POST" })
       url: publicUrl,
     };
   });
+
+export const getShippingRates = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { data: rates, error } = await supabase
+      .from("shipping_rates")
+      .select("*")
+      .order("region");
+
+    if (error) throw error;
+    return rates || [];
+  });
