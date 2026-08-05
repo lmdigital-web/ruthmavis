@@ -15,6 +15,9 @@ function RegisterComponent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -26,9 +29,12 @@ function RegisterComponent() {
       email,
       password,
       options: {
-        data: {
-          full_name: fullName,
-        },
+          data: {
+            full_name: fullName,
+            address,
+            city,
+            postal_code: postalCode,
+          },
       },
     });
 
@@ -42,8 +48,8 @@ function RegisterComponent() {
   };
 
   return (
-    <div className="container max-w-md py-20">
-      <Card className="border-gold/20 shadow-lg">
+    <div className="container max-w-2xl mx-auto py-20 flex justify-center">
+      <Card className="border-gold/20 shadow-lg w-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-serif text-primary">Create an Account</CardTitle>
           <CardDescription>
@@ -52,29 +58,66 @@ function RegisterComponent() {
         </CardHeader>
         <form onSubmit={handleRegister}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="full-name">Full Name</Label>
-              <Input 
-                id="full-name" 
-                placeholder="Jane Doe" 
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required 
-                className="focus-visible:ring-gold"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="full-name">Full Name</Label>
+                <Input 
+                  id="full-name" 
+                  placeholder="Jane Doe" 
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required 
+                  className="focus-visible:ring-gold"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="m@example.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required 
+                  className="focus-visible:ring-gold"
+                />
+              </div>
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required 
-                className="focus-visible:ring-gold"
-              />
-            </div>
+              <Label htmlFor="address">Shipping Address</Label>
+                <Input 
+                  id="address" 
+                  placeholder="123 Main St, Apartment, Suite, etc." 
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="focus-visible:ring-gold"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input 
+                    id="city" 
+                    placeholder="Nelspruit" 
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="focus-visible:ring-gold" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="postal-code">Postal Code</Label>
+                  <Input 
+                    id="postal-code" 
+                    placeholder="1201" 
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    className="focus-visible:ring-gold" 
+                  />
+                </div>
+              </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input 

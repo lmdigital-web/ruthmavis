@@ -36,7 +36,7 @@ function LoginComponent() {
   };
 
   return (
-    <div className="container max-w-md py-20">
+    <div className="container max-w-md mx-auto py-20 flex justify-center">
       <Card className="border-gold/20 shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-serif text-primary">Welcome Back</CardTitle>
