@@ -82,17 +82,25 @@ function ProductPage() {
   const finalPrice = product.price + variantPrice;
 
   const handleAddToCart = () => {
-    addToCart({
+    const item: Omit<typeof product & { quantity?: number }, 'quantity'> & Omit<import('@/hooks/use-cart').CartItem, 'quantity'> = {
       id: product.id,
       name: product.name,
       price: finalPrice,
       image_url: product.image_url,
       slug: product.slug,
-      variantId: selectedVariant || undefined,
-      variantLabel: selectedVariant ? getVariantLabel(selectedVariantData) : undefined,
-      customFileUrl: customFile?.url,
-      customFileName: customFile?.name,
-    }, quantity);
+    };
+    
+    if (selectedVariant) {
+      item.variantId = selectedVariant;
+      item.variantLabel = getVariantLabel(selectedVariantData);
+    }
+    
+    if (customFile) {
+      item.customFileUrl = customFile.url;
+      item.customFileName = customFile.name;
+    }
+    
+    addToCart(item, quantity);
     toast.success(`${product.name} added to your bag!`);
   };
 
