@@ -17,13 +17,24 @@ export const Route = createFileRoute('/product/$slug')({
 function ProductPage() {
   const { slug } = Route.useParams();
   const productFn = useServerFn(getProductBySlug);
+  const variantsFn = useServerFn(getProductVariants);
+  const uploadFn = useServerFn(uploadCustomFile);
   const router = useRouter();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const [customFile, setCustomFile] = useState<{ name: string; url: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: product } = useSuspenseQuery({
     queryKey: ['product', slug],
     queryFn: () => productFn({ data: slug }),
+  });
+
+  const { data: variants } = useSuspenseQuery({
+    queryKey: ['variants', product.id],
+    queryFn: () => variantsFn({ data: product.id }),
   });
 
   const handleAddToCart = () => {
