@@ -48,8 +48,18 @@ function RegisterComponent() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto py-20 flex justify-center">
-      <Card className="border-gold/20 shadow-lg w-full">
+    <div className="min-h-screen flex flex-col">
+      {/* Hero Section */}
+      <div className="flex-1 bg-gradient-to-br from-blush/30 via-cream to-blush/20 pt-20 pb-12 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-2">Join Our Community</h1>
+          <p className="text-lg text-muted-foreground max-w-md">Create an account to start your faith-filled gifting journey</p>
+        </div>
+      </div>
+
+      {/* Auth Box Section */}
+      <div className="container max-w-2xl mx-auto py-12 flex justify-center pb-20">
+        <Card className="border-gold/20 shadow-lg w-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-serif text-primary">Create an Account</CardTitle>
           <CardDescription>
@@ -141,8 +151,9 @@ function RegisterComponent() {
               </Link>
             </div>
           </CardFooter>
-        </form>
-      </Card>
+         </form>
+       </Card>
+      </div>
     </div>
   );
 }

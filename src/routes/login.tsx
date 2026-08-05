@@ -36,8 +36,18 @@ function LoginComponent() {
   };
 
   return (
-    <div className="container max-w-md mx-auto py-20 flex justify-center">
-      <Card className="border-gold/20 shadow-lg">
+    <div className="min-h-screen flex flex-col">
+      {/* Hero Section */}
+      <div className="flex-1 bg-gradient-to-br from-blush/30 via-cream to-blush/20 pt-20 pb-12 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-2">Welcome Back</h1>
+          <p className="text-lg text-muted-foreground max-w-md">Sign in to access your account and manage your orders</p>
+        </div>
+      </div>
+
+      {/* Auth Box Section */}
+      <div className="container max-w-md mx-auto py-12 flex justify-center pb-20">
+        <Card className="border-gold/20 shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-serif text-primary">Welcome Back</CardTitle>
           <CardDescription>
@@ -81,8 +91,9 @@ function LoginComponent() {
               </Link>
             </div>
           </CardFooter>
-        </form>
-      </Card>
+         </form>
+       </Card>
+      </div>
     </div>
   );
 }
