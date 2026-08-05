@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { crypto } from 'crypto';
+import { createHmac } from 'crypto';
 
 export const Route = createFileRoute('/api/public/paystack-webhook')({
   server: {
@@ -12,8 +12,7 @@ export const Route = createFileRoute('/api/public/paystack-webhook')({
         const secret = process.env['PAYSTACK_SECRET_KEY'];
         if (!secret) return new Response('Config error', { status: 500 });
 
-        const hash = crypto
-          .createHmac('sha512', secret)
+        const hash = createHmac('sha512', secret)
           .update(body)
           .digest('hex');
 
@@ -26,7 +25,6 @@ export const Route = createFileRoute('/api/public/paystack-webhook')({
         if (payload.event === 'charge.success') {
           const { order_id } = payload.data.metadata;
           
-          // Import supabase admin here to avoid client bundle inclusion if possible
           const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
           
           await supabaseAdmin

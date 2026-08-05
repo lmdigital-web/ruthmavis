@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,12 +10,14 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 
-const initializePayment = createServerFn({ method: 'POST' })
-  .input(z.object({
-    email: z.string().email(),
-    amount: z.number(),
-    metadata: z.any()
-  }))
+export const initializePayment = createServerFn({ method: 'POST' })
+  .validator((data: { email: string; amount: number; metadata: any }) => 
+    z.object({
+      email: z.string().email(),
+      amount: z.number(),
+      metadata: z.any()
+    }).parse(data)
+  )
   .handler(async ({ data }) => {
     const PAYSTACK_SECRET = process.env['PAYSTACK_SECRET_KEY'];
     if (!PAYSTACK_SECRET) throw new Error('Paystack secret not configured');
@@ -30,7 +32,7 @@ const initializePayment = createServerFn({ method: 'POST' })
         email: data.email,
         amount: Math.round(data.amount * 100), // convert to kobo
         metadata: data.metadata,
-        callback_url: `${process.env['VITE_SITE_URL'] || window.location.origin}/payment-verify`,
+        callback_url: `${process.env['VITE_SITE_URL'] || 'http://localhost:8080'}/payment-verify`,
       }),
     });
 
@@ -55,8 +57,9 @@ function CheckoutPage() {
   });
 
   useEffect(() => {
-    if (user?.user_metadata?.shipping_address) {
-      setShipping(user.user_metadata.shipping_address);
+    const metadata = user?.user_metadata as any;
+    if (metadata?.shipping_address) {
+      setShipping(metadata.shipping_address);
     }
   }, [user]);
 
@@ -68,10 +71,10 @@ function CheckoutPage() {
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: user?.id,
+          user_id: user?.id ?? null,
           total_amount: totalPrice,
           status: 'pending',
-          shipping_details: shipping
+          shipping_details: shipping as any
         })
         .select()
         .single();
