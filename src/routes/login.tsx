@@ -36,12 +36,12 @@ function LoginComponent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex-1 flex flex-col">
       {/* Hero Section */}
-      <div className="flex-1 bg-gradient-to-br from-blush/30 via-cream to-blush/20 pt-20 pb-12 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-2">Welcome Back</h1>
-          <p className="text-lg text-muted-foreground max-w-md">Sign in to access your account and manage your orders</p>
+      <div className="bg-gradient-to-br from-blush/30 via-cream to-blush/20 py-16 md:py-24 flex items-center justify-center">
+        <div className="text-center px-4">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-4">Welcome Back</h1>
+          <p className="text-lg text-muted-foreground max-w-md mx-auto">Sign in to access your account and manage your orders</p>
         </div>
       </div>
 

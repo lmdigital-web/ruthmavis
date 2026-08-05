@@ -143,9 +143,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex min-h-screen flex-col bg-background relative overflow-x-hidden">
           <SiteNav />
-          <main key={pathname} className="page-enter flex-1">
+          <main key={pathname} className="page-enter flex-1 flex flex-col pt-20 md:pt-24">
             <Outlet />
           </main>
           <SiteFooter />
