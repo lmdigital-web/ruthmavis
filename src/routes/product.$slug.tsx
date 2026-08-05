@@ -1,12 +1,12 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { getProductBySlug } from '@/lib/shop.functions';
+import { getProductBySlug, getProductVariants, uploadCustomFile } from '@/lib/shop.functions';
 import { Reveal } from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, ChevronLeft, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { ShoppingBag, ChevronLeft, ShieldCheck, Truck, RotateCcw, Upload, X } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { toast } from 'sonner';
 
