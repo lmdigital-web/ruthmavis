@@ -37,13 +37,61 @@ function ProductPage() {
     queryFn: () => variantsFn({ data: product.id }),
   });
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File too large. Maximum size is 10MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = (event.target?.result as string).split(',')[1];
+        const result = await uploadFn({ 
+          data: { 
+            fileName: file.name, 
+            fileBase64: base64,
+            userId: 'customer' // This would be auth.uid() in a real app
+          } 
+        });
+        setCustomFile({ name: file.name, url: result.url });
+        toast.success('Design uploaded successfully!');
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error('Failed to upload file');
+      setUploading(false);
+    }
+  };
+
+  const getVariantLabel = (variant: any) => {
+    const parts = [];
+    if (variant.size) parts.push(variant.size);
+    if (variant.color) parts.push(variant.color);
+    return parts.join(' - ') || `Variant ${variant.sku}`;
+  };
+
+  const selectedVariantData = variants?.find(v => v.id === selectedVariant);
+  const variantPrice = selectedVariantData?.price_modifier || 0;
+  const finalPrice = product.price + variantPrice;
+
   const handleAddToCart = () => {
     addToCart({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: finalPrice,
       image_url: product.image_url,
       slug: product.slug,
+      variantId: selectedVariant || undefined,
+      variantLabel: selectedVariant ? getVariantLabel(selectedVariantData) : undefined,
+      customFileUrl: customFile?.url,
+      customFileName: customFile?.name,
     }, quantity);
     toast.success(`${product.name} added to your bag!`);
   };
