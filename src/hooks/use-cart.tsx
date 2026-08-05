@@ -58,17 +58,30 @@ export function useCart() {
     });
   };
 
-  const removeFromCart = (id: string) => {
-    setItems((current) => current.filter((item) => item.id !== id));
+  const removeFromCart = (key: string) => {
+    setItems((current) => {
+      // key can be either just 'id' or 'id-variantId'
+      return current.filter((item) => {
+        const itemKey = item.variantId 
+          ? `${item.id}-${item.variantId}` 
+          : item.id;
+        return itemKey !== key;
+      });
+    });
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (key: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeFromCart(key);
       return;
     }
     setItems((current) =>
-      current.map((item) => (item.id === id ? { ...item, quantity } : item))
+      current.map((item) => {
+        const itemKey = item.variantId 
+          ? `${item.id}-${item.variantId}` 
+          : item.id;
+        return itemKey === key ? { ...item, quantity } : item;
+      })
     );
   };
 
