@@ -83,23 +83,37 @@ function RegisterComponent() {
             
             <div className="space-y-2">
               <Label htmlFor="address">Shipping Address</Label>
-              <Input 
-                id="address" 
-                placeholder="123 Main St, Apartment, Suite, etc." 
-                className="focus-visible:ring-gold"
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" placeholder="Nelspruit" className="focus-visible:ring-gold" />
+                <Input 
+                  id="address" 
+                  placeholder="123 Main St, Apartment, Suite, etc." 
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="focus-visible:ring-gold"
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="postal-code">Postal Code</Label>
-                <Input id="postal-code" placeholder="1201" className="focus-visible:ring-gold" />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input 
+                    id="city" 
+                    placeholder="Nelspruit" 
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="focus-visible:ring-gold" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="postal-code">Postal Code</Label>
+                  <Input 
+                    id="postal-code" 
+                    placeholder="1201" 
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    className="focus-visible:ring-gold" 
+                  />
+                </div>
               </div>
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
