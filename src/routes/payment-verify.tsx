@@ -62,7 +62,7 @@ function PaymentVerifyPage() {
         <div className="space-y-6">
           <CheckCircle2 className="mx-auto h-20 w-20 text-green-500" />
           <SectionHeading title="Payment Successful!" subtitle="Thank you for your order. We've received your payment and are starting to prepare your gifts." />
-          <Button onClick={() => navigate({ to: '/account' })} className="bg-burgundy">
+          <Button onClick={() => navigate({ to: '/_authenticated/account' })} className="bg-burgundy">
             View My Orders
           </Button>
         </div>
@@ -72,7 +72,7 @@ function PaymentVerifyPage() {
         <div className="space-y-6">
           <XCircle className="mx-auto h-20 w-20 text-burgundy" />
           <SectionHeading title="Payment Failed" subtitle="Something went wrong with your transaction. Please try again or contact support." />
-          <Button onClick={() => navigate({ to: '/checkout' })} variant="outline" className="border-gold/30">
+          <Button onClick={() => navigate({ to: '/_authenticated/checkout' })} variant="outline" className="border-gold/30">
             Try Again
           </Button>
         </div>
