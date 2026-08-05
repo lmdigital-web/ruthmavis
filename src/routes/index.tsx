@@ -34,21 +34,25 @@ export const Route = createFileRoute("/")({
 const collections = [
   {
     title: "Decorative Bibles",
+    slug: "decorative-bibles",
     copy: "Gift-worthy Bibles with gilded pages and soft covers.",
     image: imgBibles,
   },
   {
     title: "Devotionals",
+    slug: "devotionals",
     copy: "Praying Wife, Boldness, My Creative Bible and more.",
     image: imgDevotionals,
   },
   {
     title: "Crochet Bags",
+    slug: "handmade-crochet",
     copy: "Handmade bags, purses and little pouches.",
     image: imgCrochet,
   },
   {
     title: "Gift Combos",
+    slug: "gift-combos",
     copy: "Bundled sets ready to wrap and give.",
     image: imgCombos,
   },
