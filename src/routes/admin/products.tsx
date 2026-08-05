@@ -29,7 +29,8 @@ function AdminProducts() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (variables: Parameters<typeof updateProductFn>[0]['data']) => updateProductFn({ data: variables }),
+    mutationFn: (variables: { id: string; is_active?: boolean; stock_quantity?: number; price?: number }) => 
+      updateProductFn({ data: variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       toast.success('Product updated successfully');
