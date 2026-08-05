@@ -137,7 +137,7 @@ function AdminProducts() {
                     </td>
                     <td className="px-6 py-4">
                       <Switch
-                        checked={product.is_active}
+                        checked={product.is_active ?? false}
                         onCheckedChange={(checked) => {
                           updateMutation.mutate({ id: product.id, is_active: checked });
                         }}
