@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Gift, HeartHandshake, Music2, Package, Sparkles } from "lucide-react";
+import { Gift, HeartHandshake, Package, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
