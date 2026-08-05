@@ -56,7 +56,7 @@ function ContactPage() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-gradient-to-b from-blush/60 via-cream to-background px-6 pt-36 pb-16 text-center sm:px-8">
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-blush/60 via-cream to-background px-6 pt-12 pb-16 text-center sm:px-8">
         <BotanicalSprig className="float-slow absolute top-24 -left-8 h-52 w-40 opacity-55 md:left-10" />
         <BotanicalSprig className="float-slow absolute -right-8 bottom-0 h-48 w-36 rotate-[168deg] opacity-45 md:right-10" />
         <div className="relative mx-auto max-w-2xl">

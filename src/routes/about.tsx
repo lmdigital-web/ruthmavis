@@ -65,7 +65,7 @@ const timeline = [
 function AboutPage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-gradient-to-b from-blush/60 via-cream to-background px-6 pt-36 pb-20 text-center sm:px-8">
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-blush/60 via-cream to-background px-6 pt-12 pb-20 text-center sm:px-8">
         <BotanicalSprig className="float-slow absolute top-24 -left-8 h-56 w-44 opacity-60 md:left-10" />
         <BotanicalSprig className="float-slow absolute -right-8 bottom-0 h-52 w-40 rotate-[165deg] opacity-50 md:right-10" />
         <div className="relative mx-auto max-w-3xl">
