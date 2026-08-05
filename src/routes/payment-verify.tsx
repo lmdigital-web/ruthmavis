@@ -31,7 +31,7 @@ function PaymentVerifyPage() {
           headers: {
             // This is a client-side component, so we shouldn't use SECRET keys here.
             // Ideally, the server function handles this.
-            Authorization: `Bearer ${import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || ''}`,
+            Authorization: `Bearer ${import.meta.env['VITE_PAYSTACK_PUBLIC_KEY'] || ''}`,
           }
         });
         const data = await res.json();
