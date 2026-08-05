@@ -52,8 +52,8 @@ function ShopPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 py-12">
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 py-8 md:py-12">
         <Reveal>
           <SectionHeading 
             title="Our Collection" 
