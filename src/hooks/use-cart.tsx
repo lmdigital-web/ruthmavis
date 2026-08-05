@@ -7,6 +7,10 @@ export type CartItem = {
   image_url: string;
   quantity: number;
   slug: string;
+  variantId?: string;
+  variantLabel?: string;
+  customFileUrl?: string;
+  customFileName?: string;
 };
 
 export function useCart() {
