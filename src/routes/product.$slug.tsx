@@ -183,43 +183,6 @@ function ProductPage() {
                 </div>
               )}
 
-              {/* File Upload Section */}
-              <div className="space-y-4 pt-6">
-                <h3 className="font-serif text-lg font-semibold text-primary">Add Custom Design (Optional)</h3>
-                <div className="space-y-3">
-                  {customFile ? (
-                    <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Upload size={18} className="text-green-600" />
-                        <div>
-                          <p className="text-sm font-medium text-green-900">{customFile.name}</p>
-                          <p className="text-xs text-green-700">Ready for production</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setCustomFile(null)}
-                        className="p-1 hover:bg-green-100 rounded transition-colors"
-                      >
-                        <X size={16} className="text-green-600" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gold/30 rounded-lg cursor-pointer hover:border-gold/50 hover:bg-gold/5 transition-all">
-                      <Upload size={24} className="text-gold mb-2" />
-                      <span className="text-sm font-medium text-gold">Click to upload design</span>
-                      <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</span>
-                      <input 
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={handleFileUpload}
-                        disabled={uploading}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
 
               <div className="space-y-6 pt-6 border-t border-gold/10">
                 <div className="flex items-center gap-4">
@@ -241,7 +204,7 @@ function ProductPage() {
                   <Button 
                     onClick={handleAddToCart}
                     disabled={!product.in_stock}
-                    className="flex-1 h-14 bg-burgundy hover:bg-burgundy/90 text-lg gap-2"
+                    className="flex-1 h-14 bg-burgundy hover:bg-burgundy/90 text-burgundy-foreground text-lg gap-2"
                   >
                     <ShoppingBag size={20} />
                     Add to Bag
