@@ -1,4 +1,5 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
+import DOMPurify from 'dompurify';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import { getWooProductBySlug as getProductBySlug, getWooProductVariations as getProductVariants, uploadCustomFile } from '@/lib/woocommerce.functions';
@@ -150,7 +151,7 @@ function ProductPage() {
               <div className="prose prose-stone max-w-none">
                 <div 
                   className="text-lg leading-relaxed text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
+                  dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(product.description) : product.description }}
                 />
               </div>
 
