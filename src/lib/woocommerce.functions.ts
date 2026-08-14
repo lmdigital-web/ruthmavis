@@ -126,15 +126,19 @@ export const uploadCustomFile = createServerFn({ method: "POST" })
     fileBase64: z.string(),
     userId: z.string(),
   }).parse(data))
-  .handler(async ({ data: { fileName, fileBase64, userId } }) => {
+  .handler(async ({ data: { fileName, fileBase64, userId }, context }) => {
     // We can still use Supabase Storage for files even if products come from Woo
     const { createClient } = await import("@supabase/supabase-js");
+    
+    // For now we trust the userId from the client, or we could add auth middleware later
+    const actualUserId = userId;
+    
     const supabase = createClient(process.env['SUPABASE_URL']!, process.env['SUPABASE_PUBLISHABLE_KEY']!);
 
     const buffer = Buffer.from(fileBase64, 'base64');
     const timestamp = Date.now();
     const safeName = fileName.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
-    const filePath = `${userId}/${timestamp}_${safeName}`;
+    const filePath = `${actualUserId}/${timestamp}_${safeName}`;
 
     const { error: uploadError } = await supabase
       .storage

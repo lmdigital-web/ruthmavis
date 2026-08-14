@@ -1,4 +1,5 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
+import DOMPurify from 'dompurify';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import { getWooProductBySlug as getProductBySlug, getWooProductVariations as getProductVariants, uploadCustomFile } from '@/lib/woocommerce.functions';
@@ -56,7 +57,7 @@ function ProductPage() {
           data: { 
             fileName: file.name, 
             fileBase64: base64,
-            userId: 'customer' // This would be auth.uid() in a real app
+            userId: 'customer' // In a production app, we would use the authenticated user's ID here
           } 
         });
         setCustomFile({ name: file.name, url: result.url });
@@ -150,7 +151,7 @@ function ProductPage() {
               <div className="prose prose-stone max-w-none">
                 <div 
                   className="text-lg leading-relaxed text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
+                  dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(product.description) : product.description }}
                 />
               </div>
 
