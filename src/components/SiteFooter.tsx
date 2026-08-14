@@ -5,7 +5,7 @@ import logoAsset from "@/assets/logo.png.asset.json";
 
 export const contactDetails = {
   email: "hello@ruthmavisaccessories.co.za",
-  phone: "+27 71 234 5678",
+  phone: "079 735 0437",
   tiktok: "https://www.tiktok.com/@ruthmavisaccessories",
   tiktokHandle: "@ruthmavisaccessories",
   location: "Nelspruit, Mpumalanga, 1201",

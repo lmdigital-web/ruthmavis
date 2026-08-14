@@ -112,7 +112,7 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
                 </span>
               </div>
               <Button asChild className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90">
-                <Link to="/_authenticated/checkout" onClick={() => onOpenChange(false)}>
+                <Link to="/checkout" onClick={() => onOpenChange(false)}>
                   Checkout Now
                 </Link>
               </Button>
