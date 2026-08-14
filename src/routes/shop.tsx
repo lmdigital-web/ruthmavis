@@ -70,7 +70,7 @@ function ShopPage() {
           >
             <TabsList className="bg-blush/10 p-1">
               <TabsTrigger value="all">All</TabsTrigger>
-              {categories.map((cat) => (
+              {categories.map((cat: any) => (
                 <TabsTrigger key={cat.id} value={cat.slug}>
                   {cat.name}
                 </TabsTrigger>
@@ -91,7 +91,7 @@ function ShopPage() {
 
         <div className="mt-12 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {products.length > 0 ? (
-            products.map((product, idx) => (
+            products.map((product: any, idx: number) => (
               <Reveal key={product.id} delay={idx * 0.1}>
                 <Link 
                   to="/product/$slug" 

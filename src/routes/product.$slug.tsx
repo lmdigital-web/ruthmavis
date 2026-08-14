@@ -77,7 +77,7 @@ function ProductPage() {
     return parts.join(' - ') || `Variant ${variant.sku}`;
   };
 
-  const selectedVariantData = variants?.find(v => v.id === selectedVariant);
+  const selectedVariantData = variants?.find((v: any) => v.id === selectedVariant);
   const variantPrice = selectedVariantData?.price_modifier || 0;
   const finalPrice = product.price + variantPrice;
 
@@ -159,7 +159,7 @@ function ProductPage() {
                 <div className="space-y-4 pt-6">
                   <h3 className="font-serif text-lg font-semibold text-primary">Choose Variant</h3>
                   <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                    {variants.map((variant) => (
+                    {variants.map((variant: any) => (
                       <button
                         key={variant.id}
                         onClick={() => setSelectedVariant(variant.id)}
