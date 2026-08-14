@@ -119,3 +119,40 @@ export const getWooProductVariations = createServerFn({ method: "GET" })
       return [];
     }
   });
+
+export const uploadCustomFile = createServerFn({ method: "POST" })
+  .validator((data) => z.object({
+    fileName: z.string(),
+    fileBase64: z.string(),
+    userId: z.string(),
+  }).parse(data))
+  .handler(async ({ data: { fileName, fileBase64, userId } }) => {
+    // We can still use Supabase Storage for files even if products come from Woo
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(process.env['SUPABASE_URL']!, process.env['SUPABASE_PUBLISHABLE_KEY']!);
+
+    const buffer = Buffer.from(fileBase64, 'base64');
+    const timestamp = Date.now();
+    const safeName = fileName.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
+    const filePath = `${userId}/${timestamp}_${safeName}`;
+
+    const { error: uploadError } = await supabase
+      .storage
+      .from('customer-uploads')
+      .upload(filePath, buffer, {
+        contentType: 'application/octet-stream',
+        upsert: false,
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from('customer-uploads')
+      .getPublicUrl(filePath);
+
+    return {
+      path: filePath,
+      url: publicUrl,
+    };
+  });
