@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { getProducts, getCategories } from '@/lib/shop.functions';
+import { getWooProducts as getProducts, getWooCategories as getCategories } from '@/lib/woocommerce.functions';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
 import { Input } from '@/components/ui/input';
@@ -105,9 +105,9 @@ function ShopPage() {
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    {product.stock_quantity < 5 && (
+                    {!product.in_stock && (
                       <span className="absolute right-3 top-3 rounded-full bg-burgundy/90 px-3 py-1 text-[10px] font-bold tracking-wider text-white uppercase backdrop-blur-sm">
-                        Limited Stock
+                        Sold Out
                       </span>
                     )}
                   </div>

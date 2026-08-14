@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { getProductBySlug, getProductVariants, uploadCustomFile } from '@/lib/shop.functions';
+import { getWooProductBySlug as getProductBySlug, getWooProductVariations as getProductVariants, uploadCustomFile } from '@/lib/woocommerce.functions';
 import { Reveal } from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -131,7 +131,7 @@ function ProductPage() {
                   <Badge variant="secondary" className="bg-blush/20 text-burgundy border-transparent px-3 py-1 uppercase tracking-widest text-[10px]">
                     {product.categories?.name}
                   </Badge>
-                  {product.stock_quantity > 0 ? (
+                  {product.in_stock ? (
                     <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50/50">
                       In Stock
                     </Badge>
@@ -147,10 +147,11 @@ function ProductPage() {
                 </p>
               </div>
 
-              <div className="prose prose-stone">
-                <p className="text-lg leading-relaxed text-muted-foreground">
-                  {product.description}
-               </p>
+              <div className="prose prose-stone max-w-none">
+                <div 
+                  className="text-lg leading-relaxed text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
               </div>
 
               {/* Variants Section */}
@@ -238,7 +239,7 @@ function ProductPage() {
                   </div>
                   <Button 
                     onClick={handleAddToCart}
-                    disabled={product.stock_quantity === 0}
+                    disabled={!product.in_stock}
                     className="flex-1 h-14 bg-burgundy hover:bg-burgundy/90 text-lg gap-2"
                   >
                     <ShoppingBag size={20} />
