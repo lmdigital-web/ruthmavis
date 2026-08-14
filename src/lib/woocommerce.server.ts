@@ -17,6 +17,6 @@ export const getWooCommerceClient = () => {
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
     version: "wc/v3",
-    queryStringAuth: true // Required for some server configurations
+    queryStringAuth: false // Switched to false for modern REST API compatibility
   });
 };
