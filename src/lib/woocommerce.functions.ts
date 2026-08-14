@@ -130,8 +130,8 @@ export const uploadCustomFile = createServerFn({ method: "POST" })
     // We can still use Supabase Storage for files even if products come from Woo
     const { createClient } = await import("@supabase/supabase-js");
     
-    // Security: Use authenticated user ID if available in context
-    const actualUserId = context?.auth?.user?.id || userId;
+    // For now we trust the userId from the client, or we could add auth middleware later
+    const actualUserId = userId;
     
     const supabase = createClient(process.env['SUPABASE_URL']!, process.env['SUPABASE_PUBLISHABLE_KEY']!);
 
