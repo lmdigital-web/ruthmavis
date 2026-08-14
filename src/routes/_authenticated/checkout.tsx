@@ -136,7 +136,14 @@ function CheckoutPage() {
         }
       });
 
-      window.location.href = paymentData.authorization_url;
+      // 4. Redirect to WooCommerce cart/checkout (headless handoff)
+      // Since we are using WooCommerce as the backend now, we could also sync the cart to Woo
+      // and redirect there for the final checkout experience.
+      window.location.href = `https://shop.ruthmavisaccessories.co.za/cart/`;
+      // Alternatively, we can continue with the current Paystack integration if preferred,
+      // but usually headless setups hand off to the native checkout for compliance/security.
+      
+      // window.location.href = paymentData.authorization_url;
     } catch (error) {
       console.error('Checkout error:', error);
       alert('Failed to process checkout. Please try again.');
