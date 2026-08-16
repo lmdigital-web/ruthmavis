@@ -1,4 +1,4 @@
-import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
+import WooCommerceRestApiPackage from "@woocommerce/woocommerce-rest-api";
 
 // Use the sub-domain as the base URL
 const WOOCOMMERCE_URL = "https://shop.ruthmavisaccessories.co.za";
@@ -12,6 +12,9 @@ export const getWooCommerceClient = () => {
     throw new Error("WooCommerce API keys are not configured in environment variables.");
   }
 
+  // Handle potential ESM/CJS interop issues with the WooCommerce package
+  const WooCommerceRestApi = (WooCommerceRestApiPackage as any).default || WooCommerceRestApiPackage;
+  
   return new WooCommerceRestApi({
     url: WOOCOMMERCE_URL,
     consumerKey: consumerKey,
