@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { CartDrawer } from "./CartDrawer";
-import logoAsset from "@/assets/logo.png.asset.json";
+
 
 const links = [
   { to: "/", label: "Home" },
@@ -40,7 +40,7 @@ export function SiteNav() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-2 sm:px-8">
         <Link to="/" className="group flex items-center gap-3 min-w-0" onClick={() => setOpen(false)}>
           <img
-            src={logoAsset.url}
+            src="/logo.png"
             alt="Ruth Mavis Accessories"
             className={cn(
               "h-auto object-contain transition-all duration-500 group-hover:scale-105",

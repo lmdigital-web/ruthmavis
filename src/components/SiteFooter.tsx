@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, MapPin, Music2, Phone } from "lucide-react";
 import { Flourish } from "./Flourish";
-import logoAsset from "@/assets/logo.png.asset.json";
+
 
 export const contactDetails = {
   email: "hello@ruthmavisaccessories.co.za",
@@ -17,7 +17,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:px-8 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
-            <img src={logoAsset.url} alt="Ruth Mavis Accessories" className="h-24 w-auto object-contain" />
+            <img src="/logo.png" alt="Ruth Mavis Accessories" className="h-24 w-auto object-contain" />
           </div>
           <Flourish className="mt-4 -ml-1 w-32" />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
