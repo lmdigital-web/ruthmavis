@@ -111,8 +111,8 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
                   R {totalPrice.toFixed(2)}
                 </span>
               </div>
-              <Button asChild className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90">
-                <Link to="/checkout" onClick={() => onOpenChange(false)}>
+              <Button asChild className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90 transition-all active:scale-[0.98]">
+                <Link to="/checkout" onClick={() => onOpenChange(false)} className="flex items-center justify-center w-full h-full">
                   Checkout Now
                 </Link>
               </Button>
