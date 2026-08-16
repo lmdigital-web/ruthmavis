@@ -135,6 +135,7 @@ export function SiteNav() {
           )}
         </div>
       </div>
+      <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
     </header>
   );
 }
