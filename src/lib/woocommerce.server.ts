@@ -17,6 +17,6 @@ export const getWooCommerceClient = () => {
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
     version: "wc/v3",
-    queryStringAuth: true // Use true for non-HTTPS or certain server configurations, or if modern REST API requires it with specific keys
+    queryStringAuth: true // Set to true to allow consumer_key/secret to be sent as query parameters, which works more reliably across different server configurations
   });
 };

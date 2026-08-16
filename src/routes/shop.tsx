@@ -113,7 +113,7 @@ function ShopPage() {
                   </div>
                   <div className="mt-5 space-y-1">
                     <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-                      {product.categories?.name}
+                      {product.categories?.name || 'Uncategorized'}
                     </p>
                     <h3 className="font-serif text-lg text-primary transition-colors group-hover:text-burgundy">
                       {product.name}
