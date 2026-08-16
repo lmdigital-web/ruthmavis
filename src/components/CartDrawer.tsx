@@ -10,7 +10,7 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex w-full flex-col sm:max-w-md border-gold/10 bg-cream/95 backdrop-blur-md">
+      <SheetContent className="flex w-full flex-col sm:max-w-md border-gold/10 bg-white shadow-xl">
         <SheetHeader className="border-b border-gold/10 pb-4">
           <SheetTitle className="flex items-center gap-2 font-serif text-2xl text-primary">
             <ShoppingBag className="text-gold" /> Your Bag ({totalItems})
@@ -111,7 +111,7 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
                   R {totalPrice.toFixed(2)}
                 </span>
               </div>
-              <Button asChild className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90 transition-all active:scale-[0.98]">
+              <Button asChild className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90 transition-all active:scale-[0.98] text-white">
                 <Link to="/checkout" onClick={() => onOpenChange(false)} className="flex items-center justify-center w-full h-full">
                   Checkout Now
                 </Link>
