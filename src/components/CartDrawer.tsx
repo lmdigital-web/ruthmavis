@@ -10,7 +10,7 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex w-full flex-col sm:max-w-md border-gold/10 bg-cream/95 backdrop-blur-md">
+      <SheetContent className="flex w-full flex-col sm:max-w-md border-gold/10 bg-white shadow-xl">
         <SheetHeader className="border-b border-gold/10 pb-4">
           <SheetTitle className="flex items-center gap-2 font-serif text-2xl text-primary">
             <ShoppingBag className="text-gold" /> Your Bag ({totalItems})
