@@ -9,6 +9,7 @@ export const getWooCommerceClient = () => {
   const consumerSecret = process.env['WOOCOMMERCE_SECRET'];
 
   if (!consumerKey || !consumerSecret) {
+    console.error("CRITICAL: WooCommerce API keys are missing in the current environment.");
     throw new Error("WooCommerce API keys are not configured in environment variables.");
   }
 
