@@ -20,6 +20,7 @@ export const getWooCommerceClient = () => {
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
     version: "wc/v3",
-    queryStringAuth: true // Set to true to allow consumer_key/secret to be sent as query parameters, which works more reliably across different server configurations
+    // We disable queryStringAuth as it might be causing 401 on some servers that expect standard Basic Auth headers
+    queryStringAuth: false 
   });
 };
