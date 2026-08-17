@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 export const Route = createFileRoute('/api/public/paystack-webhook')({
   server: {
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/api/public/paystack-webhook')({
           .update(body)
           .digest('hex');
 
-        if (hash !== signature) {
+        if (!signature || !timingSafeEqual(Buffer.from(hash), Buffer.from(signature))) {
           return new Response('Invalid signature', { status: 401 });
         }
 

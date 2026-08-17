@@ -57,7 +57,6 @@ function ProductPage() {
           data: { 
             fileName: file.name, 
             fileBase64: base64,
-            userId: 'customer' // In a production app, we would use the authenticated user's ID here
           } 
         });
         setCustomFile({ name: file.name, url: result.url });

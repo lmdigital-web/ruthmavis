@@ -107,3 +107,26 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     });
   },
 );
+
+export const requireAdminAuth = createMiddleware({ type: 'function' })
+  .middleware([requireSupabaseAuth])
+  .server(async ({ next, context }) => {
+    const { supabase, userId } = context;
+    
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error || profile?.role !== 'admin') {
+      throw new Error('Unauthorized: Admin access required');
+    }
+
+    return next({
+      context: {
+        ...context,
+        isAdmin: true,
+      },
+    });
+  });
