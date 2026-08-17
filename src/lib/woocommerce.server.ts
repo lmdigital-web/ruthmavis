@@ -1,7 +1,7 @@
 import WooCommerceRestApiPackage from "@woocommerce/woocommerce-rest-api";
 
 // Use the sub-domain as the base URL
-const WOOCOMMERCE_URL = "https://ruthmavisaccessories.co.za";
+const WOOCOMMERCE_URL = "https://shop.ruthmavisaccessories.co.za";
 
 export const getWooCommerceClient = () => {
   // Always read from process.env inside the function for server-side security
@@ -21,7 +21,9 @@ export const getWooCommerceClient = () => {
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
     version: "wc/v3",
-    // Re-enable queryStringAuth: true for standard HTTPS setups
-    queryStringAuth: true 
+    queryStringAuth: true,
+    axiosConfig: {
+      timeout: 30000 // Increase timeout for slower WooCommerce sites
+    }
   });
 };

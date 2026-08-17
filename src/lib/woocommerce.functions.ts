@@ -25,7 +25,7 @@ export const getWooProducts = createServerFn({ method: "GET" })
       if (data.category && data.category !== 'all') {
         // We need to find the category ID first by slug
         const catRes = await api.get("products/categories", { slug: data.category });
-        if (catRes.data && catRes.data.length > 0) {
+        if (catRes.data && Array.isArray(catRes.data) && catRes.data.length > 0) {
           params.category = catRes.data[0].id;
         }
       }
@@ -114,7 +114,9 @@ export const getWooProductVariations = createServerFn({ method: "GET" })
   .handler(async ({ data: productId }) => {
     const api = getWooCommerceClient();
     try {
-      const response = await api.get(`products/${productId}/variations`);
+      // Ensure the ID is just the numeric part if passed as a string
+      const cleanId = productId.toString().split('/').pop();
+      const response = await api.get(`products/${cleanId}/variations`);
       return response.data.map((v: any) => ({
         id: v.id.toString(),
         sku: v.sku,

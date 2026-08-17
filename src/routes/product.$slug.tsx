@@ -150,7 +150,7 @@ function ProductPage() {
               <div className="prose prose-stone max-w-none">
                 <div 
                   className="text-lg leading-relaxed text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(product.description) : product.description }}
+                  dangerouslySetInnerHTML={{ __html: product.description }}
                 />
               </div>
 
