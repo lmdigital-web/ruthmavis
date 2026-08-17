@@ -22,21 +22,12 @@ function PaymentVerifyPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const { clearCart } = useCart();
   const navigate = useNavigate();
-
+  const verifyFn = useServerFn(verifyPaystackPayment);
+ 
   useEffect(() => {
     const verify = async () => {
       try {
-        // Verification should really happen on the server, but for simplicity in this flow:
-        // We'll trust the reference and the webhook will handle the true status update.
-        // In a production app, we would call a server function to verify via Paystack API.
-        const res = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-          headers: {
-            // This is a client-side component, so we shouldn't use SECRET keys here.
-            // Ideally, the server function handles this.
-            Authorization: `Bearer ${import.meta.env['VITE_PAYSTACK_PUBLIC_KEY'] || ''}`,
-          }
-        });
-        const data = await res.json();
+        const data = await verifyFn({ data: reference });
         
         if (data.status && data.data.status === 'success') {
           setStatus('success');

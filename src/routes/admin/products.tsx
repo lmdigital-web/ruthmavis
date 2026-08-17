@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import DOMPurify from 'dompurify';
 import { useServerFn } from '@tanstack/react-start';
 import { getAdminProducts, updateAdminProduct } from '@/lib/admin.functions';
 import { getCategories } from '@/lib/shop.functions';
@@ -108,7 +109,9 @@ function AdminProducts() {
                         </div>
                         <div>
                           <p className="font-semibold text-primary">{product.name}</p>
-                          <p className="text-xs text-muted-foreground truncate max-w-[200px]">{product.slug}</p>
+                          <p className="text-xs text-muted-foreground truncate max-w-[200px]" 
+                             dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(product.description || '') : (product.description || '') }} 
+                          />
                         </div>
                       </div>
                     </td>

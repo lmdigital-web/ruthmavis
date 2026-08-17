@@ -9,6 +9,7 @@ import { SectionHeading } from '@/components/SectionHeading';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { getShippingRates } from '@/lib/shop.functions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
