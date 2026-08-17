@@ -1,7 +1,7 @@
 import WooCommerceRestApiPackage from "@woocommerce/woocommerce-rest-api";
 
 // Use the sub-domain as the base URL
-const WOOCOMMERCE_URL = "https://ruthmavisaccessories.co.za";
+const WOOCOMMERCE_URL = "https://shop.ruthmavisaccessories.co.za";
 
 export const getWooCommerceClient = () => {
   // Always read from process.env inside the function for server-side security
