@@ -31,6 +31,7 @@ export function SiteFooter() {
           <ul className="mt-5 space-y-3 text-sm">
             {[
               { to: "/", label: "Home" },
+              { to: "/shop", label: "Shop" },
               { to: "/about", label: "About Us" },
               { to: "/contact", label: "Contact Us" },
             ].map((l) => (
@@ -43,7 +44,6 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
-            <li className="text-muted-foreground/70">Shop — coming soon</li>
           </ul>
         </div>
 
