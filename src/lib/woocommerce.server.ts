@@ -23,7 +23,11 @@ export const getWooCommerceClient = () => {
     version: "wc/v3",
     queryStringAuth: true,
     axiosConfig: {
-      timeout: 30000 // Increase timeout for slower WooCommerce sites
+      timeout: 30000,
+      headers: {
+        'User-Agent': 'Ruth-Mavis-Storefront/1.0',
+        'Accept': 'application/json',
+      }
     }
   });
 };

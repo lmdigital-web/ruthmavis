@@ -50,9 +50,11 @@ export const getWooProducts = createServerFn({ method: "GET" })
     } catch (error: any) {
       console.error("WooCommerce API Error (Products):", {
         status: error.response?.status,
+        statusText: error.response?.statusText,
         data: error.response?.data,
         message: error.message,
-        url: error.config?.url
+        url: error.config?.url,
+        headers: error.response?.headers
       });
       // Fallback: return empty array instead of throwing to prevent global crash
       return [];
