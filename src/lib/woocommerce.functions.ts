@@ -47,8 +47,13 @@ export const getWooProducts = createServerFn({ method: "GET" })
         in_stock: p.stock_status === 'instock'
       }));
     } catch (error: any) {
-      console.error("WooCommerce API Error:", error.response?.data || error.message);
-      throw new Error("Failed to fetch products from WooCommerce");
+      console.error("WooCommerce API Error (Products):", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        url: error.config?.url
+      });
+      throw new Error(`Failed to fetch products: ${error.response?.data?.message || error.message}`);
     }
   });
 
@@ -78,7 +83,11 @@ export const getWooProductBySlug = createServerFn({ method: "GET" })
         variations: p.variations || []
       };
     } catch (error: any) {
-      console.error("WooCommerce API Error:", error.response?.data || error.message);
+      console.error("WooCommerce API Error (Single Product):", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       throw new Error("Failed to fetch product details");
     }
   });
@@ -93,8 +102,8 @@ export const getWooCategories = createServerFn({ method: "GET" })
         name: c.name,
         slug: c.slug
       }));
-    } catch (error) {
-      console.error("WooCommerce Categories Error:", error);
+    } catch (error: any) {
+      console.error("WooCommerce Categories Error:", error.response?.data || error.message);
       return [];
     }
   });

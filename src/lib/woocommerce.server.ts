@@ -20,7 +20,7 @@ export const getWooCommerceClient = () => {
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
     version: "wc/v3",
-    // We disable queryStringAuth as it might be causing 401 on some servers that expect standard Basic Auth headers
-    queryStringAuth: false 
+    // Re-enable queryStringAuth: true for standard HTTPS setups
+    queryStringAuth: true 
   });
 };
