@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getWooCommerceClient } from "./woocommerce.server";
 
 // Cache products slightly or use a more robust caching strategy if needed
@@ -130,24 +131,21 @@ export const getWooProductVariations = createServerFn({ method: "GET" })
   });
 
 export const uploadCustomFile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data) => z.object({
     fileName: z.string(),
     fileBase64: z.string(),
-    userId: z.string(),
   }).parse(data))
-  .handler(async ({ data: { fileName, fileBase64, userId }, context }) => {
-    // We can still use Supabase Storage for files even if products come from Woo
+  .handler(async ({ data: { fileName, fileBase64 }, context }) => {
+    const { userId } = context;
     const { createClient } = await import("@supabase/supabase-js");
-    
-    // For now we trust the userId from the client, or we could add auth middleware later
-    const actualUserId = userId;
     
     const supabase = createClient(process.env['SUPABASE_URL']!, process.env['SUPABASE_PUBLISHABLE_KEY']!);
 
     const buffer = Buffer.from(fileBase64, 'base64');
     const timestamp = Date.now();
     const safeName = fileName.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
-    const filePath = `${actualUserId}/${timestamp}_${safeName}`;
+    const filePath = `${userId}/${timestamp}_${safeName}`;
 
     const { error: uploadError } = await supabase
       .storage

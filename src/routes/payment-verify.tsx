@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useCart } from '@/hooks/use-cart';
+import { useServerFn } from '@tanstack/react-start';
 import { SectionHeading } from '@/components/SectionHeading';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { z } from 'zod';
+import { verifyPaystackPayment } from './_authenticated/checkout';
 
 const verifySchema = z.object({
   reference: z.string(),
