@@ -25,7 +25,7 @@ export const getWooProducts = createServerFn({ method: "GET" })
       if (data.category && data.category !== 'all') {
         // We need to find the category ID first by slug
         const catRes = await api.get("products/categories", { slug: data.category });
-        if (catRes.data && catRes.data.length > 0) {
+        if (catRes.data && Array.isArray(catRes.data) && catRes.data.length > 0) {
           params.category = catRes.data[0].id;
         }
       }
