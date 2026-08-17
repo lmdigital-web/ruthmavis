@@ -21,7 +21,9 @@ export const getWooCommerceClient = () => {
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
     version: "wc/v3",
-    // Re-enable queryStringAuth: true for standard HTTPS setups
-    queryStringAuth: true 
+    queryStringAuth: true,
+    axiosConfig: {
+      timeout: 30000 // Increase timeout for slower WooCommerce sites
+    }
   });
 };
