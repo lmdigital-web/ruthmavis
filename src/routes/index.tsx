@@ -132,7 +132,7 @@ function HomePage() {
           <div className="rise-in mt-10 flex flex-col items-center gap-4 [animation-delay:440ms] sm:flex-row">
             <Link
               to="/shop"
-              className="group inline-flex items-center gap-2 rounded-full bg-burgundy px-8 py-3.5 font-sans text-sm tracking-wide text-white shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-burgundy/90 border border-burgundy"
+              className="group inline-flex items-center gap-2 rounded-full bg-burgundy px-8 py-3.5 font-sans text-sm tracking-wide text-white shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-burgundy/90 border border-burgundy !bg-burgundy !text-white"
             >
               <ShoppingBag size={16} className="text-gold" />
               Shop Collection
