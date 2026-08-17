@@ -4,9 +4,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ShoppingBag, X, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) return null;
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
