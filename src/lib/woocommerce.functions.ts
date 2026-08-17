@@ -54,8 +54,10 @@ export const getWooProducts = createServerFn({ method: "GET" })
         message: error.message,
         url: error.config?.url
       });
-      throw new Error(`Failed to fetch products: ${error.response?.data?.message || error.message}`);
+      // Fallback: return empty array instead of throwing to prevent global crash
+      return [];
     }
+
   });
 
 export const getWooProductBySlug = createServerFn({ method: "GET" })
