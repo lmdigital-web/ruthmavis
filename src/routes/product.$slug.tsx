@@ -102,7 +102,7 @@ function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-24">
+    <div className="min-h-screen bg-background pt-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 py-12">
         <button 
           onClick={() => router.history.back()}

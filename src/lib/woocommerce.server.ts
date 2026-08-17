@@ -1,7 +1,7 @@
 import WooCommerceRestApiPackage from "@woocommerce/woocommerce-rest-api";
 
 // Use the sub-domain as the base URL
-const WOOCOMMERCE_URL = "https://shop.ruthmavisaccessories.co.za";
+const WOOCOMMERCE_URL = "https://ruthmavisaccessories.co.za";
 
 export const getWooCommerceClient = () => {
   // Always read from process.env inside the function for server-side security
@@ -9,6 +9,7 @@ export const getWooCommerceClient = () => {
   const consumerSecret = process.env['WOOCOMMERCE_SECRET'];
 
   if (!consumerKey || !consumerSecret) {
+    console.error("CRITICAL: WooCommerce API keys are missing in the current environment.");
     throw new Error("WooCommerce API keys are not configured in environment variables.");
   }
 
