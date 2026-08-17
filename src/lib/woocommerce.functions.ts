@@ -90,8 +90,9 @@ export const getWooProductBySlug = createServerFn({ method: "GET" })
     } catch (error: any) {
       console.error("WooCommerce API Error (Single Product):", {
         status: error.response?.status,
-        data: error.response?.data,
-        message: error.message
+        statusText: error.response?.statusText,
+        message: error.message,
+        data: error.response?.data
       });
       throw new Error("Failed to fetch product details");
     }
@@ -108,7 +109,11 @@ export const getWooCategories = createServerFn({ method: "GET" })
         slug: c.slug
       }));
     } catch (error: any) {
-      console.error("WooCommerce Categories Error:", error.response?.data || error.message);
+      console.error("WooCommerce Categories Error:", {
+        status: error.response?.status,
+        message: error.message,
+        data: error.response?.data
+      });
       return [];
     }
   });
@@ -131,7 +136,11 @@ export const getWooProductVariations = createServerFn({ method: "GET" })
         in_stock: v.stock_status === 'instock'
       }));
     } catch (error) {
-      console.error("WooCommerce Variations Error:", error);
+      console.error("WooCommerce Variations Error:", {
+        status: (error as any).response?.status,
+        message: (error as any).message,
+        data: (error as any).response?.data
+      });
       return [];
     }
   });
