@@ -11,6 +11,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { LogOut, Package, User, MapPin } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getShippingRates } from '@/lib/shop.functions';
+import { useQuery } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/_authenticated/account')({
   component: AccountComponent,
@@ -29,11 +32,18 @@ function AccountComponent() {
   });
 
   const [fullName, setFullName] = useState(data.profile.full_name || '');
-  const [address, setAddress] = useState(
-    typeof data.profile.shipping_address === 'string' 
-      ? data.profile.shipping_address 
-      : JSON.stringify(data.profile.shipping_address || {}, null, 2)
-  );
+  const shippingAddress = data.profile.shipping_address as any;
+  const [shipping, setShipping] = useState({
+    address: shippingAddress?.address || '',
+    city: shippingAddress?.city || '',
+    postalCode: shippingAddress?.postalCode || shippingAddress?.postal_code || '',
+    region: shippingAddress?.region || 'Mpumalanga'
+  });
+
+  const { data: shippingRates } = useQuery({
+    queryKey: ['shipping-rates'],
+    queryFn: () => getShippingRates()
+  });
 
   const mutation = useMutation({
     mutationFn: (variables: { full_name: string; shipping_address: any }) => updateProfileFn({ data: variables }),
@@ -49,13 +59,10 @@ function AccountComponent() {
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    let parsedAddress = address;
-    try {
-      parsedAddress = JSON.parse(address);
-    } catch (e) {
-      // Keep as string if not valid JSON
-    }
-    mutation.mutate({ full_name: fullName, shipping_address: parsedAddress });
+    mutation.mutate({ 
+      full_name: fullName, 
+      shipping_address: shipping 
+    });
   };
 
   const handleSignOut = async () => {
@@ -108,15 +115,66 @@ function AccountComponent() {
                   <Label htmlFor="email">Email</Label>
                   <Input id="email" value={data.profile.email} disabled className="bg-muted cursor-not-allowed" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Shipping Address</Label>
-                  <textarea 
-                    id="address" 
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter your delivery address"
-                  />
+                <div className="space-y-4 pt-4 border-t border-gold/10">
+                  <h4 className="flex items-center gap-2 font-medium text-primary">
+                    <MapPin size={16} className="text-gold" /> Shipping Address
+                  </h4>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="region">Region / Province</Label>
+                    <Select 
+                      value={shipping.region} 
+                      onValueChange={(val) => setShipping(s => ({ ...s, region: val }))}
+                    >
+                      <SelectTrigger className="focus:ring-gold">
+                        <SelectValue placeholder="Select a region" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {shippingRates?.map((rate: any) => (
+                          <SelectItem key={rate.id} value={rate.region}>
+                            {rate.region}
+                          </SelectItem>
+                        ))}
+                        {(!shippingRates || shippingRates.length === 0) && (
+                          <SelectItem value="Mpumalanga">Mpumalanga (Default)</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Street Address</Label>
+                    <Input 
+                      id="address" 
+                      value={shipping.address}
+                      onChange={(e) => setShipping(s => ({ ...s, address: e.target.value }))}
+                      placeholder="123 Faith Lane"
+                      className="focus-visible:ring-gold"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City</Label>
+                      <Input 
+                        id="city" 
+                        value={shipping.city}
+                        onChange={(e) => setShipping(s => ({ ...s, city: e.target.value }))}
+                        placeholder="Nelspruit"
+                        className="focus-visible:ring-gold"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="postalCode">Postal Code</Label>
+                      <Input 
+                        id="postalCode" 
+                        value={shipping.postalCode}
+                        onChange={(e) => setShipping(s => ({ ...s, postalCode: e.target.value }))}
+                        placeholder="1201"
+                        className="focus-visible:ring-gold"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <Button type="submit" disabled={mutation.isPending} className="w-full bg-gold hover:bg-gold/90 text-primary-foreground font-medium">
                   {mutation.isPending ? 'Saving...' : 'Update Profile'}
