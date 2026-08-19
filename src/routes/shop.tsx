@@ -100,12 +100,12 @@ function ShopPage() {
                 >
                   <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted shadow-sm ring-1 ring-gold/5">
                     <img
-                      src={product.image_url}
+                      src={product.image_url ?? undefined}
                       alt={product.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    {!product.in_stock && (
+                    {product.stock_quantity <= 0 && (
                       <span className="absolute right-3 top-3 rounded-full bg-burgundy/90 px-3 py-1 text-[10px] font-bold tracking-wider text-white uppercase backdrop-blur-sm">
                         Sold Out
                       </span>
