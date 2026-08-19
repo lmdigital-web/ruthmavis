@@ -27,9 +27,12 @@ export const Route = createFileRoute('/api/public/paystack-webhook')({
           
           const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
           
+          // Update order status (limited to existing columns in DB)
           await supabaseAdmin
             .from('orders')
-            .update({ status: 'processing' })
+            .update({ 
+              status: 'paid'
+            })
             .eq('id', order_id);
         }
 

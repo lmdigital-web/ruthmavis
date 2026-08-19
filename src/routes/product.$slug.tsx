@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router';
 import DOMPurify from 'dompurify';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { getWooProductBySlug as getProductBySlug, getWooProductVariations as getProductVariants, uploadCustomFile } from '@/lib/woocommerce.functions';
+import { getProductBySlug, getProductVariants, uploadCustomFile } from '@/lib/shop.functions';
 import { Reveal } from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -86,7 +86,7 @@ function ProductPage() {
       id: product.id,
       name: product.name,
       price: finalPrice,
-      image_url: product.image_url,
+      image_url: product.image_url ?? '',
       slug: product.slug,
       ...(selectedVariant && {
         variantId: selectedVariant,
@@ -116,7 +116,7 @@ function ProductPage() {
           <Reveal>
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-muted shadow-xl ring-1 ring-gold/10">
               <img
-                src={product.image_url}
+                src={product.image_url ?? undefined}
                 alt={product.name}
                 className="h-full w-full object-cover"
               />
@@ -131,7 +131,7 @@ function ProductPage() {
                   <Badge variant="secondary" className="bg-blush/20 text-burgundy border-transparent px-3 py-1 uppercase tracking-widest text-[10px]">
                     {product.categories?.name}
                   </Badge>
-                  {product.in_stock ? (
+                  {product.stock_quantity > 0 ? (
                     <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50/50">
                       In Stock
                     </Badge>
@@ -150,7 +150,7 @@ function ProductPage() {
               <div className="prose prose-stone max-w-none">
                 <div 
                   className="text-lg leading-relaxed text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
+                  dangerouslySetInnerHTML={{ __html: typeof window !== 'undefined' ? DOMPurify.sanitize(product.description ?? '') : (product.description ?? '') }}
                 />
               </div>
 
@@ -202,7 +202,7 @@ function ProductPage() {
                   </div>
                   <Button 
                     onClick={handleAddToCart}
-                    disabled={!product.in_stock}
+                    disabled={product.stock_quantity <= 0}
                     className="flex-1 h-14 bg-burgundy hover:bg-burgundy/90 text-burgundy-foreground text-lg gap-2"
                   >
                     <ShoppingBag size={20} />

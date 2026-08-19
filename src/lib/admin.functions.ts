@@ -40,24 +40,66 @@ export const getAdminProducts = createServerFn({ method: "GET" })
     return products;
   });
 
+export const createAdminProduct = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .inputValidator((data) => z.object({
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().nullable().optional(),
+    price: z.number().min(0),
+    stock_quantity: z.number().int().min(0),
+    category_id: z.string().uuid().nullable().optional(),
+    image_url: z.string().url().nullable().optional(),
+    is_active: z.boolean().default(true),
+  }).parse(data))
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    // Map undefined to null for Supabase/PostgREST compatibility with exactOptionalPropertyTypes
+    const insertData = {
+      ...data,
+      description: data.description ?? null,
+      category_id: data.category_id ?? null,
+      image_url: data.image_url ?? null,
+    };
+    const { error } = await supabase.from("products").insert(insertData as any);
+    if (error) throw error;
+    return { success: true };
+  });
+
 export const updateAdminProduct = createServerFn({ method: "POST" })
   .middleware([requireAdminAuth])
   .inputValidator((data) => z.object({
     id: z.string().uuid(),
-    is_active: z.boolean().optional(),
-    stock_quantity: z.number().int().min(0).optional(),
+    name: z.string().optional(),
+    slug: z.string().optional(),
+    description: z.string().nullable().optional(),
     price: z.number().min(0).optional(),
+    stock_quantity: z.number().int().min(0).optional(),
+    category_id: z.string().uuid().nullable().optional(),
+    image_url: z.string().url().nullable().optional(),
+    is_active: z.boolean().optional(),
   }).parse(data))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-
     const { id, ...updates } = data;
-    const updateObj: any = {};
-    if (updates.is_active !== undefined) updateObj.is_active = updates.is_active;
-    if (updates.stock_quantity !== undefined) updateObj.stock_quantity = updates.stock_quantity;
-    if (updates.price !== undefined) updateObj.price = updates.price;
+    
+    // Convert undefined to null for specific fields that Supabase expects to be nullable
+    const cleanUpdates: any = { ...updates };
+    if ('description' in updates) cleanUpdates.description = updates.description ?? null;
+    if ('category_id' in updates) cleanUpdates.category_id = updates.category_id ?? null;
+    if ('image_url' in updates) cleanUpdates.image_url = updates.image_url ?? null;
 
-    const { error } = await supabase.from("products").update(updateObj).eq("id", id);
+    const { error } = await supabase.from("products").update(cleanUpdates).eq("id", id);
+    if (error) throw error;
+    return { success: true };
+  });
+
+export const deleteAdminProduct = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .inputValidator((data) => z.string().uuid().parse(data))
+  .handler(async ({ context, data: id }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) throw error;
     return { success: true };
   });

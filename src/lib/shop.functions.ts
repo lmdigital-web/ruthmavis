@@ -1,11 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env['SUPABASE_URL']!;
-const supabaseAnonKey = process.env['SUPABASE_PUBLISHABLE_KEY']!;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from "@/integrations/supabase/client";
 
 export const getProducts = createServerFn({ method: "GET" })
   .validator((data) => z.object({ 
