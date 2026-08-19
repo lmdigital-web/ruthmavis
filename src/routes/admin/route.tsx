@@ -22,7 +22,7 @@ export const Route = createFileRoute('/admin')({
 });
 
 import { Link } from '@tanstack/react-router';
-import { LayoutDashboard, ShoppingBag, Package, LogOut, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, LogOut, Users, Settings, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function AdminLayout() {
@@ -63,6 +63,30 @@ function AdminLayout() {
           >
             <ShoppingBag className="w-5 h-5" />
             <span>Orders</span>
+          </Link>
+          <Link
+            to="/admin/customers"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"
+            activeProps={{ className: 'active' }}
+          >
+            <Users className="w-5 h-5" />
+            <span>Customers</span>
+          </Link>
+          <Link
+            to="/admin/shipping"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"
+            activeProps={{ className: 'active' }}
+          >
+            <Truck className="w-5 h-5" />
+            <span>Shipping</span>
+          </Link>
+          <Link
+            to="/admin/settings"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"
+            activeProps={{ className: 'active' }}
+          >
+            <Settings className="w-5 h-5" />
+            <span>Settings</span>
           </Link>
         </nav>
 
