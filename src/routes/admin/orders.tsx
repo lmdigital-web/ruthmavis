@@ -29,7 +29,7 @@ function AdminOrders() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: (variables: { orderId: string; status: 'pending' | 'processing' | 'completed' | 'cancelled' }) => 
+    mutationFn: (variables: { orderId: string; status: 'pending' | 'paid' | 'processing' | 'completed' | 'cancelled' }) => 
       updateStatusFn({ data: variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
@@ -40,6 +40,7 @@ function AdminOrders() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'paid': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'processing': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'completed': return 'bg-green-100 text-green-800 border-green-200';
       case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
@@ -117,6 +118,7 @@ function AdminOrders() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="paid">Paid</SelectItem>
                           <SelectItem value="processing">Processing</SelectItem>
                           <SelectItem value="completed">Completed</SelectItem>
                           <SelectItem value="cancelled">Cancelled</SelectItem>
