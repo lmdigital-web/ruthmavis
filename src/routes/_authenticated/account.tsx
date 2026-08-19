@@ -32,11 +32,12 @@ function AccountComponent() {
   });
 
   const [fullName, setFullName] = useState(data.profile.full_name || '');
+  const shippingAddress = data.profile.shipping_address as any;
   const [shipping, setShipping] = useState({
-    address: data.profile.shipping_address?.address || '',
-    city: data.profile.shipping_address?.city || '',
-    postalCode: data.profile.shipping_address?.postalCode || data.profile.shipping_address?.postal_code || '',
-    region: data.profile.shipping_address?.region || 'Mpumalanga'
+    address: shippingAddress?.address || '',
+    city: shippingAddress?.city || '',
+    postalCode: shippingAddress?.postalCode || shippingAddress?.postal_code || '',
+    region: shippingAddress?.region || 'Mpumalanga'
   });
 
   const { data: shippingRates } = useQuery({
