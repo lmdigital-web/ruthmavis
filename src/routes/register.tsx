@@ -31,9 +31,12 @@ function RegisterComponent() {
       options: {
           data: {
             full_name: fullName,
-            address,
-            city,
-            postal_code: postalCode,
+            shipping_address: {
+              address,
+              city,
+              postal_code: postalCode,
+              region: 'Mpumalanga', // Default region
+            },
           },
       },
     });

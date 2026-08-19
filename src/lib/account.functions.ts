@@ -32,7 +32,12 @@ export const updateProfile = createServerFn({ method: "POST" })
     z
       .object({
         full_name: z.string().min(2),
-        shipping_address: z.any(),
+        shipping_address: z.object({
+          address: z.string(),
+          city: z.string(),
+          postalCode: z.string(),
+          region: z.string(),
+        }).nullable(),
       })
       .parse(data)
   )
