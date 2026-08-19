@@ -1,13 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { requireAdminAuth } from "@/integrations/supabase/auth-middleware";
 import { Database } from "@/integrations/supabase/types";
 
 type StoreSetting = Database['public']['Tables']['store_settings']['Row'];
 
 export const getCustomers = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { data, error } = await supabase
+  .middleware([requireAdminAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
       .from('profiles')
       .select('*')
       .order('created_at', { ascending: false });
@@ -17,8 +19,9 @@ export const getCustomers = createServerFn({ method: "GET" })
   });
 
 export const getStoreSettings = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { data, error } = await supabase
+  .middleware([requireAdminAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
       .from('store_settings')
       .select('*');
     
@@ -42,12 +45,13 @@ export const getStoreSettings = createServerFn({ method: "GET" })
   });
 
 export const updateStoreSettings = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
   .inputValidator((data) => z.object({
     key: z.string(),
     value: z.any()
   }).parse(data))
-  .handler(async ({ data }) => {
-    const { error } = await supabase
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
       .from('store_settings')
       .upsert({ 
         key: data.key, 
@@ -60,15 +64,16 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
   });
 
 export const updateShippingRate = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
   .inputValidator((data) => z.object({
     id: z.string().optional(),
     region: z.string(),
     price: z.number(),
     free_shipping_threshold: z.number().nullable()
   }).parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     if (data.id) {
-      const { error } = await supabase
+      const { error } = await context.supabase
         .from('shipping_rates')
         .update({
           region: data.region,
@@ -79,7 +84,7 @@ export const updateShippingRate = createServerFn({ method: "POST" })
         .eq('id', data.id);
       if (error) throw error;
     } else {
-      const { error } = await supabase
+      const { error } = await context.supabase
         .from('shipping_rates')
         .insert({
           region: data.region,
@@ -92,9 +97,10 @@ export const updateShippingRate = createServerFn({ method: "POST" })
   });
 
 export const deleteShippingRate = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
   .inputValidator((data) => z.object({ id: z.string() }).parse(data))
-  .handler(async ({ data }) => {
-    const { error } = await supabase
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
       .from('shipping_rates')
       .delete()
       .eq('id', data.id);
