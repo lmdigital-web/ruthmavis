@@ -49,8 +49,8 @@ function AdminSettings() {
 
   useEffect(() => {
     if (settings) {
-      if (settings.general) setGeneralForm(settings.general);
-      if (settings.payment) setPaymentForm(settings.payment);
+      if (settings['general']) setGeneralForm(settings['general']);
+      if (settings['payment']) setPaymentForm(settings['payment']);
     }
   }, [settings]);
 
