@@ -40,24 +40,52 @@ export const getAdminProducts = createServerFn({ method: "GET" })
     return products;
   });
 
+export const createAdminProduct = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .inputValidator((data) => z.object({
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().optional(),
+    price: z.number().min(0),
+    stock_quantity: z.number().int().min(0),
+    category_id: z.string().uuid().optional(),
+    image_url: z.string().url().optional(),
+    is_active: z.boolean().default(true),
+  }).parse(data))
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("products").insert(data);
+    if (error) throw error;
+    return { success: true };
+  });
+
 export const updateAdminProduct = createServerFn({ method: "POST" })
   .middleware([requireAdminAuth])
   .inputValidator((data) => z.object({
     id: z.string().uuid(),
-    is_active: z.boolean().optional(),
-    stock_quantity: z.number().int().min(0).optional(),
+    name: z.string().optional(),
+    slug: z.string().optional(),
+    description: z.string().optional(),
     price: z.number().min(0).optional(),
+    stock_quantity: z.number().int().min(0).optional(),
+    category_id: z.string().uuid().optional(),
+    image_url: z.string().url().optional(),
+    is_active: z.boolean().optional(),
   }).parse(data))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-
     const { id, ...updates } = data;
-    const updateObj: any = {};
-    if (updates.is_active !== undefined) updateObj.is_active = updates.is_active;
-    if (updates.stock_quantity !== undefined) updateObj.stock_quantity = updates.stock_quantity;
-    if (updates.price !== undefined) updateObj.price = updates.price;
+    const { error } = await supabase.from("products").update(updates).eq("id", id);
+    if (error) throw error;
+    return { success: true };
+  });
 
-    const { error } = await supabase.from("products").update(updateObj).eq("id", id);
+export const deleteAdminProduct = createServerFn({ method: "POST" })
+  .middleware([requireAdminAuth])
+  .inputValidator((data) => z.string().uuid().parse(data))
+  .handler(async ({ context, data: id }) => {
+    const { supabase } = context;
+    const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) throw error;
     return { success: true };
   });

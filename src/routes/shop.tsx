@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { getWooProducts as getProducts, getWooCategories as getCategories } from '@/lib/woocommerce.functions';
+import { getProducts, getCategories } from '@/lib/shop.functions';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
 import { Input } from '@/components/ui/input';

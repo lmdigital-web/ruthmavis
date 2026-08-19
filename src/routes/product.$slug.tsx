@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router';
 import DOMPurify from 'dompurify';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
-import { getWooProductBySlug as getProductBySlug, getWooProductVariations as getProductVariants, uploadCustomFile } from '@/lib/woocommerce.functions';
+import { getProductBySlug, getProductVariants, uploadCustomFile } from '@/lib/shop.functions';
 import { Reveal } from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
