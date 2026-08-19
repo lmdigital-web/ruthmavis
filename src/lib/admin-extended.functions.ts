@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type StoreSetting = Database['public']['Tables']['store_settings']['Row'];
 
 export const getCustomers = createServerFn({ method: "GET" })
   .handler(async () => {
@@ -26,12 +29,12 @@ export const getStoreSettings = createServerFn({ method: "GET" })
         general: { contact_email: 'Ruth.mavis0803@gmail.com', notification_email: 'Ruth.mavis0803@gmail.com', store_name: 'Ruth Mavis Accessories' },
         payment: { currency: 'ZAR', tax_rate: 15, paystack_enabled: true },
         shipping: { free_shipping_threshold: 1000 }
-      };
+      } as Record<string, any>;
     }
 
     // Convert array to object
     const settings: Record<string, any> = {};
-    data?.forEach(item => {
+    (data as StoreSetting[])?.forEach(item => {
       settings[item.key] = item.value;
     });
     
@@ -46,7 +49,11 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { error } = await supabase
       .from('store_settings')
-      .upsert({ key: data.key, value: data.value, updated_at: new Date().toISOString() });
+      .upsert({ 
+        key: data.key, 
+        value: data.value, 
+        updated_at: new Date().toISOString() 
+      } as any);
     
     if (error) throw error;
     return { success: true };
