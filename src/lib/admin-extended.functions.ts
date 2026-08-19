@@ -14,7 +14,10 @@ export const getCustomers = createServerFn({ method: "GET" })
       .select('*')
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.error("Error fetching customers:", error);
+      throw error;
+    }
     return data;
   });
 
@@ -57,9 +60,12 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
         key: data.key, 
         value: data.value, 
         updated_at: new Date().toISOString() 
-      } as any);
+      }, { onConflict: 'key' });
     
-    if (error) throw error;
+    if (error) {
+      console.error("Error updating settings:", error);
+      throw error;
+    }
     return { success: true };
   });
 
