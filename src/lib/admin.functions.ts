@@ -45,16 +45,23 @@ export const createAdminProduct = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({
     name: z.string(),
     slug: z.string(),
-    description: z.string().optional(),
+    description: z.string().nullable().optional(),
     price: z.number().min(0),
     stock_quantity: z.number().int().min(0),
-    category_id: z.string().uuid().optional(),
-    image_url: z.string().url().optional(),
+    category_id: z.string().uuid().nullable().optional(),
+    image_url: z.string().url().nullable().optional(),
     is_active: z.boolean().default(true),
   }).parse(data))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const { error } = await supabase.from("products").insert(data);
+    // Map undefined to null for Supabase/PostgREST compatibility with exactOptionalPropertyTypes
+    const insertData = {
+      ...data,
+      description: data.description ?? null,
+      category_id: data.category_id ?? null,
+      image_url: data.image_url ?? null,
+    };
+    const { error } = await supabase.from("products").insert(insertData as any);
     if (error) throw error;
     return { success: true };
   });
@@ -65,17 +72,24 @@ export const updateAdminProduct = createServerFn({ method: "POST" })
     id: z.string().uuid(),
     name: z.string().optional(),
     slug: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string().nullable().optional(),
     price: z.number().min(0).optional(),
     stock_quantity: z.number().int().min(0).optional(),
-    category_id: z.string().uuid().optional(),
-    image_url: z.string().url().optional(),
+    category_id: z.string().uuid().nullable().optional(),
+    image_url: z.string().url().nullable().optional(),
     is_active: z.boolean().optional(),
   }).parse(data))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
     const { id, ...updates } = data;
-    const { error } = await supabase.from("products").update(updates).eq("id", id);
+    
+    // Convert undefined to null for specific fields that Supabase expects to be nullable
+    const cleanUpdates: any = { ...updates };
+    if ('description' in updates) cleanUpdates.description = updates.description ?? null;
+    if ('category_id' in updates) cleanUpdates.category_id = updates.category_id ?? null;
+    if ('image_url' in updates) cleanUpdates.image_url = updates.image_url ?? null;
+
+    const { error } = await supabase.from("products").update(cleanUpdates).eq("id", id);
     if (error) throw error;
     return { success: true };
   });
