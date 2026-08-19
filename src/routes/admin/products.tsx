@@ -2,16 +2,33 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
 import { useServerFn } from '@tanstack/react-start';
-import { getAdminProducts, updateAdminProduct } from '@/lib/admin.functions';
+import { getAdminProducts, updateAdminProduct, createAdminProduct, deleteAdminProduct } from '@/lib/admin.functions';
 import { getCategories } from '@/lib/shop.functions';
 import { Reveal } from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit2, Package } from 'lucide-react';
-import { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Plus, Search, Edit2, Package, Trash2, X, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute('/admin/products')({
   component: AdminProducts,
@@ -20,29 +37,82 @@ export const Route = createFileRoute('/admin/products')({
 function AdminProducts() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   
   const fetchProducts = useServerFn(getAdminProducts);
+  const fetchCategories = useServerFn(getCategories);
   const updateProductFn = useServerFn(updateAdminProduct);
+  const createProductFn = useServerFn(createAdminProduct);
+  const deleteProductFn = useServerFn(deleteAdminProduct);
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: ['admin-products'],
     queryFn: () => fetchProducts(),
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (variables: { id: string; is_active?: boolean; stock_quantity?: number; price?: number }) => 
-      updateProductFn({ data: variables }),
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => fetchCategories(),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (variables: any) => createProductFn({ data: variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-      toast.success('Product updated successfully');
+      toast.success('Product created successfully');
+      setIsDialogOpen(false);
+      setEditingProduct(null);
     },
     onError: (err: any) => toast.error(err.message),
   });
 
-  const filteredProducts = products?.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.categories?.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const updateMutation = useMutation({
+    mutationFn: (variables: any) => updateProductFn({ data: variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      toast.success('Product updated successfully');
+      setIsDialogOpen(false);
+      setEditingProduct(null);
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteProductFn({ data: id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      toast.success('Product deleted successfully');
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+
+  const filteredProducts = useMemo(() => 
+    products?.filter(p => 
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.categories?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [products, searchTerm]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name') as string,
+      slug: formData.get('slug') as string,
+      description: formData.get('description') as string,
+      price: parseFloat(formData.get('price') as string),
+      stock_quantity: parseInt(formData.get('stock_quantity') as string),
+      category_id: formData.get('category_id') as string || null,
+      image_url: formData.get('image_url') as string || null,
+      is_active: formData.get('is_active') === 'on',
+    };
+
+    if (editingProduct) {
+      updateMutation.mutate({ ...data, id: editingProduct.id });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -51,10 +121,83 @@ function AdminProducts() {
           <h1 className="text-3xl font-serif font-bold text-primary">Products</h1>
           <p className="text-muted-foreground mt-2">Manage your boutique inventory.</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-white gap-2">
-          <Plus className="w-4 h-4" />
-          Add Product
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) setEditingProduct(null);
+        }}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90 text-white gap-2">
+              <Plus className="w-4 h-4" />
+              Add Product
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-2xl text-primary">
+                {editingProduct ? 'Edit Product' : 'Add New Product'}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Product Name</Label>
+                  <Input id="name" name="name" defaultValue={editingProduct?.name} required placeholder="e.g. Floral Bible Cover" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug</Label>
+                  <Input id="slug" name="slug" defaultValue={editingProduct?.slug} required placeholder="e.g. floral-bible-cover" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea id="description" name="description" defaultValue={editingProduct?.description} rows={4} placeholder="Detailed product description..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price (R)</Label>
+                  <Input id="price" name="price" type="number" step="0.01" defaultValue={editingProduct?.price} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stock_quantity">Stock Quantity</Label>
+                  <Input id="stock_quantity" name="stock_quantity" type="number" defaultValue={editingProduct?.stock_quantity} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category_id">Category</Label>
+                  <Select name="category_id" defaultValue={editingProduct?.category_id || "none"}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Uncategorized</SelectItem>
+                      {categories?.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="image_url">Image URL</Label>
+                  <Input id="image_url" name="image_url" defaultValue={editingProduct?.image_url} placeholder="https://..." />
+                </div>
+                <div className="flex items-center gap-2 pt-4">
+                  <Switch id="is_active" name="is_active" defaultChecked={editingProduct ? editingProduct.is_active : true} />
+                  <Label htmlFor="is_active">Product Active / Visible</Label>
+                </div>
+              </div>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white min-w-[120px]" disabled={createMutation.isPending || updateMutation.isPending}>
+                  {(createMutation.isPending || updateMutation.isPending) ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Product'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="relative max-w-sm">
@@ -81,7 +224,7 @@ function AdminProducts() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gold/5">
-              {isLoading ? (
+              {isLoadingProducts ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground italic">
                     Loading inventory data...
@@ -147,9 +290,31 @@ function AdminProducts() {
                       />
                     </td>
                     <td className="px-6 py-4">
-                      <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-muted-foreground hover:text-primary"
+                          onClick={() => {
+                            setEditingProduct(product);
+                            setIsDialogOpen(true);
+                          }}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-muted-foreground hover:text-destructive"
+                          onClick={() => {
+                            if (confirm('Are you sure you want to delete this product?')) {
+                              deleteMutation.mutate(product.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))
