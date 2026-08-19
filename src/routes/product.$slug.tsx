@@ -86,7 +86,7 @@ function ProductPage() {
       id: product.id,
       name: product.name,
       price: finalPrice,
-      image_url: product.image_url,
+      image_url: product.image_url || '',
       slug: product.slug,
       ...(selectedVariant && {
         variantId: selectedVariant,
