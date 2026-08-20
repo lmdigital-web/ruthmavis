@@ -51,19 +51,33 @@ export const createAdminProduct = createServerFn({ method: "POST" })
     category_id: z.string().uuid().nullable().optional(),
     image_url: z.string().url().nullable().optional(),
     is_active: z.boolean().default(true),
+    additional_images: z.array(z.string().url()).optional(),
   }).parse(data))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    // Map undefined to null for Supabase/PostgREST compatibility with exactOptionalPropertyTypes
+    const { additional_images, ...productData } = data;
+    
     const insertData = {
-      ...data,
-      description: data.description ?? null,
-      category_id: data.category_id ?? null,
-      image_url: data.image_url ?? null,
+      ...productData,
+      description: productData.description ?? null,
+      category_id: productData.category_id ?? null,
+      image_url: productData.image_url ?? null,
     };
-    const { error } = await supabase.from("products").insert(insertData as any);
+    
+    const { data: product, error } = await supabase.from("products").insert(insertData as any).select().single();
     if (error) throw error;
-    return { success: true };
+
+    if (additional_images && additional_images.length > 0) {
+      const imageInserts = additional_images.map((url, index) => ({
+        product_id: product.id,
+        url,
+        display_order: index
+      }));
+      const { error: imgError } = await supabase.from("product_images").insert(imageInserts);
+      if (imgError) throw imgError;
+    }
+
+    return { success: true, id: product.id };
   });
 
 export const updateAdminProduct = createServerFn({ method: "POST" })
@@ -78,12 +92,12 @@ export const updateAdminProduct = createServerFn({ method: "POST" })
     category_id: z.string().uuid().nullable().optional(),
     image_url: z.string().url().nullable().optional(),
     is_active: z.boolean().optional(),
+    additional_images: z.array(z.string().url()).optional(),
   }).parse(data))
   .handler(async ({ context, data }) => {
     const { supabase } = context;
-    const { id, ...updates } = data;
+    const { id, additional_images, ...updates } = data;
     
-    // Convert undefined to null for specific fields that Supabase expects to be nullable
     const cleanUpdates: any = { ...updates };
     if ('description' in updates) cleanUpdates.description = updates.description ?? null;
     if ('category_id' in updates) cleanUpdates.category_id = updates.category_id ?? null;
@@ -91,6 +105,22 @@ export const updateAdminProduct = createServerFn({ method: "POST" })
 
     const { error } = await supabase.from("products").update(cleanUpdates).eq("id", id);
     if (error) throw error;
+
+    if (additional_images !== undefined) {
+      // Simplest way: delete all and re-insert
+      await supabase.from("product_images").delete().eq("product_id", id);
+      
+      if (additional_images.length > 0) {
+        const imageInserts = additional_images.map((url, index) => ({
+          product_id: id,
+          url,
+          display_order: index
+        }));
+        const { error: imgError } = await supabase.from("product_images").insert(imageInserts);
+        if (imgError) throw imgError;
+      }
+    }
+
     return { success: true };
   });
 
@@ -102,6 +132,21 @@ export const deleteAdminProduct = createServerFn({ method: "POST" })
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) throw error;
     return { success: true };
+  });
+
+export const getProductAdditionalImages = createServerFn({ method: "GET" })
+  .middleware([requireAdminAuth])
+  .inputValidator((data) => z.string().uuid().parse(data))
+  .handler(async ({ context, data: productId }) => {
+    const { supabase } = context;
+    const { data, error } = await supabase
+      .from("product_images")
+      .select("*")
+      .eq("product_id", productId)
+      .order("display_order", { ascending: true });
+    
+    if (error) throw error;
+    return data;
   });
 
 export const getAdminOrders = createServerFn({ method: "GET" })
