@@ -9,13 +9,13 @@ DROP POLICY IF EXISTS "Admin Upload" ON storage.objects;
 DROP POLICY IF EXISTS "Admin Update" ON storage.objects;
 DROP POLICY IF EXISTS "Admin Delete" ON storage.objects;
 
--- Create clean public access
+-- Create clean public access for everyone (anon and authenticated)
 CREATE POLICY "Public Access"
 ON storage.objects FOR SELECT
 TO anon, authenticated
 USING (bucket_id = 'product-images');
 
--- Create admin management policies
+-- Create admin management policies for authenticated users
 CREATE POLICY "Admin Upload"
 ON storage.objects FOR INSERT
 TO authenticated
