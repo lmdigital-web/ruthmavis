@@ -64,7 +64,7 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {images.map((url, index) => (
-          <div key={url + index} className="relative group aspect-square rounded-xl overflow-hidden border border-gold/20 bg-secondary/10">
+          <div key={url + index} className="relative group aspect-square rounded-xl overflow-hidden border border-gold/20 bg-secondary/10 flex items-center justify-center">
             <img 
               src={url} 
               alt="" 
