@@ -44,7 +44,7 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
         if (!data?.publicUrl) throw new Error("Could not get public URL");
         
         // Ensure we use a clean public URL without extra tokens
-        const cleanUrl = data.publicUrl.split('?')[0].replace('/object/sign/', '/object/public/');
+        const cleanUrl = data.publicUrl.split('?')[0]?.replace('/object/sign/', '/object/public/') || data.publicUrl;
         newUrls.push(cleanUrl);
       } catch (error: any) {
         console.error("Upload error details:", error);
