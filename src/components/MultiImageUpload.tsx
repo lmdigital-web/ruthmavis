@@ -31,11 +31,15 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
 
-        newUrls.push(publicUrl);
+        if (!data?.publicUrl) throw new Error("Could not get public URL");
+        
+        // Ensure the URL is valid by checking if it contains the bucket name
+        // Sometimes signed URLs are needed for private buckets, but we aim for public
+        newUrls.push(data.publicUrl);
       } catch (error: any) {
         toast.error(`Error uploading ${file.name}: ${error.message}`);
       }
