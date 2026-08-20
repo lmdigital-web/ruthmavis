@@ -121,7 +121,7 @@ function ProductPage() {
                 <img
                   src={
                     product.product_images && product.product_images.length > 0
-                      ? product.product_images[activeImageIndex].url
+                      ? product.product_images?.[activeImageIndex]?.url
                       : (product.image_url ?? undefined)
                   }
                   alt={product.name}
