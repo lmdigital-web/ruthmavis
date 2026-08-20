@@ -45,7 +45,7 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
         
         // Ensure we use a clean public URL without extra tokens or signature paths
         // We explicitly convert sign to public just in case the client library is confused
-        let cleanUrl = data.publicUrl.split('?')[0];
+        let cleanUrl = data.publicUrl.split('?')[0] || data.publicUrl;
         cleanUrl = cleanUrl.replace('/object/sign/', '/object/public/');
         
         console.log("Generated clean public URL:", cleanUrl);
