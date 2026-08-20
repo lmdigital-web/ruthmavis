@@ -27,16 +27,21 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
       try {
         const { error: uploadError } = await supabase.storage
           .from('product-images')
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Supabase storage upload error:", uploadError);
+          throw uploadError;
+        }
 
-        // Since public buckets might be blocked by policy, we use signed URLs for now
-        // to ensure visibility, but let's try public URL first
         const { data } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
 
+        if (!data?.publicUrl) throw new Error("Could not get public URL");
         newUrls.push(data.publicUrl);
       } catch (error: any) {
         console.error("Upload error details:", error);
