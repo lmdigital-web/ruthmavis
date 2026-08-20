@@ -37,19 +37,19 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
           throw uploadError;
         }
 
-        const { data } = supabase.storage
+        const { data: { session } } = await supabase.auth.getSession();
+        const { data, error: urlError } = await supabase.storage
           .from('product-images')
-          .getPublicUrl(filePath);
+          .createSignedUrl(filePath, 315360000); // 10 years in seconds
 
-        if (!data?.publicUrl) throw new Error("Could not get public URL");
+        if (urlError || !data?.signedUrl) {
+          console.error("Signed URL error:", urlError);
+          throw new Error("Could not get signed URL");
+        }
         
-        // Ensure we use a clean public URL without extra tokens or signature paths
-        // We explicitly convert sign to public just in case the client library is confused
-        let cleanUrl = data.publicUrl.split('?')[0] || data.publicUrl;
-        cleanUrl = cleanUrl.replace('/object/sign/', '/object/public/');
-        
-        console.log("Generated clean public URL:", cleanUrl);
-        newUrls.push(cleanUrl);
+        const signedUrl = data.signedUrl;
+        console.log("Generated 10-year signed URL:", signedUrl);
+        newUrls.push(signedUrl);
       } catch (error: any) {
         console.error("Upload error details:", error);
         toast.error(`Error uploading ${file.name}: ${error.message || 'Unknown error'}`);
