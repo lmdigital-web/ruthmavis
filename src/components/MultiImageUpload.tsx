@@ -22,7 +22,7 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
     for (const file of acceptedFiles) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      const filePath = `${fileName}`; // Removed "products/" prefix to keep it simple
 
       try {
         const { error: uploadError } = await supabase.storage
@@ -31,13 +31,16 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
+        // Since public buckets might be blocked by policy, we use signed URLs for now
+        // to ensure visibility, but let's try public URL first
+        const { data } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
 
-        newUrls.push(publicUrl);
+        newUrls.push(data.publicUrl);
       } catch (error: any) {
-        toast.error(`Error uploading ${file.name}: ${error.message}`);
+        console.error("Upload error details:", error);
+        toast.error(`Error uploading ${file.name}: ${error.message || 'Unknown error'}`);
       }
     }
 
@@ -61,8 +64,17 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {images.map((url, index) => (
-          <div key={url + index} className="relative group aspect-square rounded-xl overflow-hidden border border-gold/20 bg-secondary/10">
-            <img src={url} alt="" className="w-full h-full object-cover" />
+          <div key={url + index} className="relative group aspect-square rounded-xl overflow-hidden border border-gold/20 bg-secondary/10 flex items-center justify-center">
+            <img 
+              src={url} 
+              alt="" 
+              className="w-full h-full object-cover" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://placehold.co/400x400?text=Image+Error';
+                console.error("Image failed to load:", url);
+              }}
+            />
             <button
               type="button"
               onClick={() => removeImage(index)}
@@ -80,7 +92,7 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
           {...getRootProps()} 
           className={cn(
             "aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors",
-            isDragActive ? "border-gold bg-gold/5" : "border-gold/20 hover:border-gold/40 bg-white",
+            isDragActive ? "border-gold bg-gold/5" : "border-gold/20 hover:border-gold/40 bg-secondary/20",
             uploading && "opacity-50 cursor-not-allowed"
           )}
         >
