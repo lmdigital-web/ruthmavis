@@ -10,6 +10,7 @@ import { ShoppingBag, ChevronLeft, ShieldCheck, Truck, RotateCcw, Upload, X } fr
 import { useState, useRef } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/product/$slug')({
   component: ProductPage,
@@ -24,6 +25,7 @@ function ProductPage() {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [customFile, setCustomFile] = useState<{ name: string; url: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -112,14 +114,40 @@ function ProductPage() {
         </button>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          {/* Product Image */}
+          {/* Product Image Gallery */}
           <Reveal>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-muted shadow-xl ring-1 ring-gold/10">
-              <img
-                src={product.image_url ?? undefined}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
+            <div className="flex flex-col gap-4">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-muted shadow-xl ring-1 ring-gold/10 group">
+                <img
+                  src={
+                    product.product_images && product.product_images.length > 0
+                      ? product.product_images[activeImageIndex].url
+                      : (product.image_url ?? undefined)
+                  }
+                  alt={product.name}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              
+              {/* Thumbnails */}
+              {product.product_images && product.product_images.length > 1 && (
+                <div className="flex flex-wrap gap-3">
+                  {product.product_images.map((img: any, index: number) => (
+                    <button
+                      key={img.id}
+                      onClick={() => setActiveImageIndex(index)}
+                      className={cn(
+                        "relative w-20 aspect-[4/5] rounded-xl overflow-hidden border-2 transition-all",
+                        activeImageIndex === index 
+                          ? "border-burgundy shadow-md scale-105" 
+                          : "border-transparent opacity-60 hover:opacity-100"
+                      )}
+                    >
+                      <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </Reveal>
 
