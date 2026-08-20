@@ -42,7 +42,10 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
           .getPublicUrl(filePath);
 
         if (!data?.publicUrl) throw new Error("Could not get public URL");
-        newUrls.push(data.publicUrl);
+        
+        // Ensure we use a clean public URL without extra tokens
+        const cleanUrl = data.publicUrl.split('?')[0]?.replace('/object/sign/', '/object/public/') || data.publicUrl;
+        newUrls.push(cleanUrl);
       } catch (error: any) {
         console.error("Upload error details:", error);
         toast.error(`Error uploading ${file.name}: ${error.message || 'Unknown error'}`);

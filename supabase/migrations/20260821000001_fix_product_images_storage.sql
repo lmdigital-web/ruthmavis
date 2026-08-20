@@ -9,7 +9,7 @@ DROP POLICY IF EXISTS "Admin Upload" ON storage.objects;
 DROP POLICY IF EXISTS "Admin Update" ON storage.objects;
 DROP POLICY IF EXISTS "Admin Delete" ON storage.objects;
 
--- Create clean public access
+-- Create clean public access for everyone
 CREATE POLICY "Public Access"
 ON storage.objects FOR SELECT
 TO anon, authenticated
