@@ -1,0 +1,2 @@
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT TO anon USING (bucket_id = 'product-images');
+CREATE POLICY "Public Access Authenticated" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'product-images');
