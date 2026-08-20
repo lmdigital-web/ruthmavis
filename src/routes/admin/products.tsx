@@ -217,16 +217,23 @@ function AdminProducts() {
                   <Label htmlFor="is_active">Product Active / Visible</Label>
                 </div>
               </div>
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white min-w-[120px]" disabled={createMutation.isPending || updateMutation.isPending}>
+              <DialogFooter className="gap-2 sm:gap-0 mt-6 border-t pt-4">
+                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                <Button 
+                  type="submit" 
+                  className="bg-burgundy hover:bg-burgundy/90 text-white min-w-[140px] shadow-md" 
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
                   {(createMutation.isPending || updateMutation.isPending) ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    'Save Product'
+                    <>
+                      <Package className="w-4 h-4 mr-2" />
+                      Save Product
+                    </>
                   )}
                 </Button>
               </DialogFooter>
