@@ -39,7 +39,8 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
 
         newUrls.push(data.publicUrl);
       } catch (error: any) {
-        toast.error(`Error uploading ${file.name}: ${error.message}`);
+        console.error("Upload error details:", error);
+        toast.error(`Error uploading ${file.name}: ${error.message || 'Unknown error'}`);
       }
     }
 
