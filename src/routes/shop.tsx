@@ -115,7 +115,7 @@ function ShopPage() {
                     <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
                       {product.categories?.name || 'Uncategorized'}
                     </p>
-                    <h3 className="font-serif text-lg text-primary transition-colors group-hover:text-burgundy">
+                    <h3 className="font-serif text-lg text-primary transition-colors group-hover:text-burgundy line-clamp-1">
                       {product.name}
                     </h3>
                     <p className="font-serif text-xl font-bold text-primary/80">
