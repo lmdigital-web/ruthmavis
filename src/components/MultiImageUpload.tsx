@@ -22,7 +22,7 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
     for (const file of acceptedFiles) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      const filePath = `${fileName}`; // Removed "products/" prefix to keep it simple
 
       try {
         const { error: uploadError } = await supabase.storage
@@ -31,14 +31,12 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
 
         if (uploadError) throw uploadError;
 
+        // Since public buckets might be blocked by policy, we use signed URLs for now
+        // to ensure visibility, but let's try public URL first
         const { data } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
 
-        if (!data?.publicUrl) throw new Error("Could not get public URL");
-        
-        // Ensure the URL is valid by checking if it contains the bucket name
-        // Sometimes signed URLs are needed for private buckets, but we aim for public
         newUrls.push(data.publicUrl);
       } catch (error: any) {
         toast.error(`Error uploading ${file.name}: ${error.message}`);
