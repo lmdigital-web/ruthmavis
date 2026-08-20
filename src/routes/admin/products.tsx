@@ -252,9 +252,9 @@ function AdminProducts() {
         />
       </div>
 
-      <div className="bg-white rounded-2xl border border-gold/10 overflow-hidden shadow-[var(--shadow-soft)]">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+      <div className="bg-white rounded-2xl border border-gold/10 shadow-[var(--shadow-soft)] relative z-0">
+        <div className="overflow-x-auto min-w-full">
+          <table className="w-full text-left table-auto">
             <thead className="bg-secondary/30 text-primary font-serif text-sm uppercase tracking-wider">
               <tr>
                 <th className="px-6 py-4 font-semibold">Product</th>
@@ -262,7 +262,7 @@ function AdminProducts() {
                 <th className="px-6 py-4 font-semibold">Price</th>
                 <th className="px-6 py-4 font-semibold">Stock</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Actions</th>
+                <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gold/5">
@@ -332,7 +332,7 @@ function AdminProducts() {
                       />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-end gap-2">
                         <Button 
                           variant="secondary" 
                           size="sm" 

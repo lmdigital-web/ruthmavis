@@ -27,9 +27,9 @@ import { Button } from '@/components/ui/button';
 
 function AdminLayout() {
   return (
-    <div className="flex min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] bg-secondary/30 pt-24 md:pt-32">
+    <div className="flex min-h-screen bg-secondary/30 pt-20 md:pt-24">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gold/10 flex flex-col fixed left-0 top-0 bottom-0 z-40 mt-20 md:mt-24">
+      <aside className="w-64 bg-white border-r border-gold/10 flex flex-col fixed left-0 top-0 bottom-0 z-40 mt-20 md:mt-24 shadow-sm">
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-serif text-xl">
