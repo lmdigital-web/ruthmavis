@@ -334,20 +334,21 @@ function AdminProducts() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-muted-foreground hover:text-primary"
+                          variant="secondary" 
+                          size="sm" 
+                          className="bg-blush/20 text-burgundy hover:bg-blush/40 gap-1.5 px-3 border border-burgundy/10"
                           onClick={() => {
                             setEditingProduct(product);
                             setIsDialogOpen(true);
                           }}
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3.5 h-3.5" />
+                          Edit
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="text-muted-foreground hover:text-destructive"
+                          className="text-muted-foreground hover:text-destructive h-8 w-8"
                           onClick={() => {
                             if (confirm('Are you sure you want to delete this product?')) {
                               deleteMutation.mutate(product.id);
