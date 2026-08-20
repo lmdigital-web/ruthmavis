@@ -66,7 +66,16 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {images.map((url, index) => (
           <div key={url + index} className="relative group aspect-square rounded-xl overflow-hidden border border-gold/20 bg-secondary/10">
-            <img src={url} alt="" className="w-full h-full object-cover" />
+            <img 
+              src={url} 
+              alt="" 
+              className="w-full h-full object-cover" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://placehold.co/400x400?text=Image+Error';
+                console.error("Image failed to load:", url);
+              }}
+            />
             <button
               type="button"
               onClick={() => removeImage(index)}
