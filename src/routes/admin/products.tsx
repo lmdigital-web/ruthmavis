@@ -11,9 +11,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Plus, Search, Edit2, Package, Trash2, X, Loader2 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { Plus, Search, Edit2, Package, Trash2, X, Loader2, ImagePlus } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'sonner';
+import { RichTextEditor } from '@/components/RichTextEditor';
+import { MultiImageUpload } from '@/components/MultiImageUpload';
+import { getProductAdditionalImages } from '@/lib/admin.functions';
 import {
   Dialog,
   DialogContent,
@@ -39,12 +42,15 @@ function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [description, setDescription] = useState('');
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   
   const fetchProducts = useServerFn(getAdminProducts);
   const fetchCategories = useServerFn(getCategories);
   const updateProductFn = useServerFn(updateAdminProduct);
   const createProductFn = useServerFn(createAdminProduct);
   const deleteProductFn = useServerFn(deleteAdminProduct);
+  const fetchAdditionalImages = useServerFn(getProductAdditionalImages);
 
   const { data: products, isLoading: isLoadingProducts } = useQuery({
     queryKey: ['admin-products'],
@@ -99,12 +105,13 @@ function AdminProducts() {
     const data = {
       name: formData.get('name') as string,
       slug: formData.get('slug') as string,
-      description: formData.get('description') as string,
+      description: description,
       price: parseFloat(formData.get('price') as string),
       stock_quantity: parseInt(formData.get('stock_quantity') as string),
       category_id: formData.get('category_id') as string || null,
-      image_url: formData.get('image_url') as string || null,
+      image_url: additionalImages[0] || null,
       is_active: formData.get('is_active') === 'on',
+      additional_images: additionalImages,
     };
 
     if (editingProduct) {
@@ -123,7 +130,11 @@ function AdminProducts() {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
-          if (!open) setEditingProduct(null);
+          if (!open) {
+            setEditingProduct(null);
+            setDescription('');
+            setAdditionalImages([]);
+          }
         }}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 text-white gap-2">
@@ -148,8 +159,12 @@ function AdminProducts() {
                   <Input id="slug" name="slug" defaultValue={editingProduct?.slug} required placeholder="e.g. floral-bible-cover" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea id="description" name="description" defaultValue={editingProduct?.description} rows={4} placeholder="Detailed product description..." />
+                  <Label>Description</Label>
+                  <RichTextEditor 
+                    content={description} 
+                    onChange={setDescription} 
+                    placeholder="Describe the product details, features, and specs..."
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price">Price (R)</Label>
@@ -173,44 +188,13 @@ function AdminProducts() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="image_url">Image URL</Label>
-                  <div className="flex gap-2">
-                    <Input id="image_url" name="image_url" defaultValue={editingProduct?.image_url} placeholder="https://..." className="flex-1" />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => {
-                        const fileInput = document.createElement('input');
-                        fileInput.type = 'file';
-                        fileInput.accept = 'image/*';
-                        fileInput.onchange = async (e: any) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          
-                          const reader = new FileReader();
-                          reader.onload = async (event) => {
-                            const base64 = (event.target?.result as string).split(',')[1];
-                            toast.loading('Uploading image...');
-                            try {
-                              // We'll reuse the existing upload function but need to handle it properly
-                              // For simplicity in this admin context, I'll recommend the user pastes the URL or we add a real upload handler
-                              toast.dismiss();
-                              toast.info("Direct upload from this dialog is being configured. Please paste the image URL for now or use the 'Save' button below.");
-                            } catch (err) {
-                              toast.dismiss();
-                              toast.error('Upload failed');
-                            }
-                          };
-                          reader.readAsDataURL(file);
-                        };
-                        fileInput.click();
-                      }}
-                      className="shrink-0"
-                    >
-                      Browse
-                    </Button>
-                  </div>
+                <div className="space-y-3 sm:col-span-2">
+                  <Label>Product Images</Label>
+                  <MultiImageUpload 
+                    images={additionalImages} 
+                    onChange={setAdditionalImages} 
+                    productId={editingProduct?.id}
+                  />
                 </div>
                 <div className="flex items-center gap-2 pt-4">
                   <Switch id="is_active" name="is_active" defaultChecked={editingProduct ? editingProduct.is_active : true} />
@@ -337,8 +321,19 @@ function AdminProducts() {
                           variant="secondary" 
                           size="sm" 
                           className="bg-blush/20 text-burgundy hover:bg-blush/40 gap-1.5 px-3 border border-burgundy/10"
-                          onClick={() => {
+                          onClick={async () => {
                             setEditingProduct(product);
+                            setDescription(product.description || '');
+                            
+                            // Load additional images
+                            try {
+                              const imgs = await fetchAdditionalImages({ data: product.id });
+                              setAdditionalImages(imgs.map(i => i.url));
+                            } catch (e) {
+                              // Fallback to main image if additional fetch fails
+                              setAdditionalImages(product.image_url ? [product.image_url] : []);
+                            }
+                            
                             setIsDialogOpen(true);
                           }}
                         >
