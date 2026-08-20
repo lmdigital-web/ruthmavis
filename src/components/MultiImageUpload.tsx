@@ -92,7 +92,7 @@ export function MultiImageUpload({ images, onChange, productId }: MultiImageUplo
           {...getRootProps()} 
           className={cn(
             "aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors",
-            isDragActive ? "border-gold bg-gold/5" : "border-gold/20 hover:border-gold/40 bg-white",
+            isDragActive ? "border-gold bg-gold/5" : "border-gold/20 hover:border-gold/40 bg-secondary/20",
             uploading && "opacity-50 cursor-not-allowed"
           )}
         >
