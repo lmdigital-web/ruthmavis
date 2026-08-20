@@ -36,12 +36,18 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   .handler(async ({ data: slug }) => {
     const { data: product, error } = await supabase
       .from("products")
-      .select("*, categories(name, slug)")
+      .select("*, categories(name, slug), product_images(*)")
       .eq("slug", slug)
       .eq("is_active", true)
       .single();
 
     if (error) throw error;
+    
+    // Ensure product_images is sorted by display_order
+    if (product.product_images) {
+      product.product_images.sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
+    }
+    
     return product;
   });
 
