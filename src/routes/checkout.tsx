@@ -88,16 +88,20 @@ function CheckoutPage() {
   });
 
   useEffect(() => {
-    const metadata = user?.user_metadata as any;
-    if (metadata?.shipping_address) {
-      setShipping(s => ({
-        ...s,
-        ...metadata.shipping_address,
-        email: user.email || ''
-      }));
-
+    if (user) {
+      const metadata = user.user_metadata as any;
+      if (metadata?.shipping_address) {
+        setShipping(s => ({
+          ...s,
+          ...metadata.shipping_address,
+          email: user.email || ''
+        }));
+      } else if (user.email) {
+        setShipping(s => ({ ...s, email: user.email || '' }));
+      }
     }
   }, [user]);
+
 
   const selectedRate = useMemo(() => {
     if (!shipping.region || !shippingRates) return null;
