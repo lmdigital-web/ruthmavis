@@ -66,7 +66,7 @@ function AdminOverview() {
                 '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
               </p>
               <Button size="sm" className="w-full bg-burgundy hover:bg-burgundy/90 text-white text-xs h-8">
-                Load the security issues from the scan results and fix the selected issues.
+                i noticed if i add something to the cart, then i click the cart icon, not shows in the pop up side bar, i have to refresh the page then only it shows in cart, can you fix this
               </Button>
             </div>
           </div>
