@@ -5,14 +5,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
 import { useState, useEffect, useMemo } from 'react';
-import { SectionHeading } from '@/components/SectionHeading';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
-import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { getShippingRates } from '@/lib/shop.functions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
+import { ChevronRight, ChevronLeft, ShoppingBag } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 export const initializePayment = createServerFn({ method: 'POST' })
   .validator((data: { email: string; amount: number; metadata: any }) => 
@@ -46,23 +47,6 @@ export const initializePayment = createServerFn({ method: 'POST' })
     return result.data;
   });
 
-export const verifyPaystackPayment = createServerFn({ method: 'GET' })
-  .validator((data: string) => z.string().parse(data))
-
-  .handler(async ({ data: reference }) => {
-    const PAYSTACK_SECRET = process.env['PAYSTACK_SECRET_KEY'];
-    if (!PAYSTACK_SECRET) throw new Error('Paystack secret not configured');
-
-    const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      headers: {
-        Authorization: `Bearer ${PAYSTACK_SECRET}`,
-      },
-    });
-
-    const result = await response.json();
-    return result;
-  });
-
 export const Route = createFileRoute('/checkout')({
   component: CheckoutPage,
 });
@@ -70,17 +54,20 @@ export const Route = createFileRoute('/checkout')({
 function CheckoutPage() {
   const { items, totalPrice } = useCart();
   const cartTotalPrice = totalPrice();
-
   const { user } = useAuth();
+  
   const [loading, setLoading] = useState(false);
   const [shipping, setShipping] = useState({
     email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
     address: '',
+    apartment: '',
     city: '',
     postalCode: '',
     region: ''
   });
-
 
   const { data: shippingRates } = useQuery({
     queryKey: ['shipping-rates'],
@@ -102,7 +89,6 @@ function CheckoutPage() {
     }
   }, [user]);
 
-
   const selectedRate = useMemo(() => {
     if (!shipping.region || !shippingRates) return null;
     return shippingRates.find(r => r.region === shipping.region);
@@ -116,17 +102,14 @@ function CheckoutPage() {
     return Number(selectedRate.price);
   }, [selectedRate, cartTotalPrice]);
 
-  // Placeholder for tax (e.g. 15% VAT in SA)
   const taxRate = 0.15;
   const taxAmount = (cartTotalPrice + shippingAmount) * taxRate;
   const grandTotal = cartTotalPrice + shippingAmount + taxAmount;
-
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // 1. Create Order in Pending status
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -142,8 +125,7 @@ function CheckoutPage() {
 
       if (orderError) throw orderError;
 
-      // 2. Create Order Items
-      const orderItems = items.map((item: import("@/hooks/use-cart").CartItem) => ({
+      const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.id,
         quantity: item.quantity,
@@ -153,7 +135,6 @@ function CheckoutPage() {
       const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // 3. Initialize Paystack
       const paymentData = await initializePayment({
         data: {
           email: shipping.email,
@@ -165,8 +146,6 @@ function CheckoutPage() {
         }
       });
 
-
-      // 4. Redirect to Paystack checkout
       window.location.href = paymentData.authorization_url;
     } catch (error) {
       console.error('Checkout error:', error);
@@ -188,127 +167,232 @@ function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-24">
-      <SectionHeading title="Checkout" subtitle="Secure payment via Paystack" />
-      
-      <div className="mt-12 grid gap-12 lg:grid-cols-2">
-        <form onSubmit={handleCheckout} className="space-y-6 rounded-2xl border border-gold/10 bg-white/50 p-8 shadow-sm backdrop-blur-sm">
-          <h3 className="text-xl font-serif text-primary">Shipping Information</h3>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+    <div className="min-h-screen bg-white">
+      {/* Mobile Order Summary Toggle */}
+      <div className="lg:hidden border-b border-gray-200 bg-gray-50 px-4 py-4">
+        <button className="flex w-full items-center justify-between text-burgundy" onClick={() => document.getElementById('mobile-summary')?.classList.toggle('hidden')}>
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="h-5 w-5" />
+            <span className="text-sm">Show order summary</span>
+          </div>
+          <span className="font-bold">R {grandTotal.toFixed(2)}</span>
+        </button>
+        <div id="mobile-summary" className="hidden mt-4 space-y-4">
+          {items.map((item) => (
+            <div key={`${item.id}-${item.variantId}`} className="flex items-center gap-4">
+              <div className="relative h-16 w-16 overflow-hidden rounded-md border border-gray-200 bg-white">
+                <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+                <Badge className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-500 p-0 text-[10px] text-white">
+                  {item.quantity}
+                </Badge>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-medium">{item.name}</h4>
+                {item.variantLabel && <p className="text-xs text-gray-500">{item.variantLabel}</p>}
+              </div>
+              <span className="text-sm font-medium">R {(item.price * item.quantity).toFixed(2)}</span>
+            </div>
+          ))}
+          <Separator />
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm"><span>Subtotal</span><span>R {cartTotalPrice.toFixed(2)}</span></div>
+            <div className="flex justify-between text-sm"><span>Shipping</span><span>{shippingAmount === 0 ? 'Free' : `R ${shippingAmount.toFixed(2)}`}</span></div>
+            <div className="flex justify-between text-sm"><span>VAT (15%)</span><span>R {taxAmount.toFixed(2)}</span></div>
+            <div className="flex justify-between pt-2 text-lg font-bold"><span>Total</span><span>R {grandTotal.toFixed(2)}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto grid min-h-screen lg:grid-cols-[1fr_450px]">
+        {/* Left Column: Form */}
+        <div className="px-4 py-8 lg:px-12 lg:py-16">
+          <div className="mb-8">
+            <h1 className="text-2xl font-serif text-burgundy mb-4">Ruth Mavis Accessories</h1>
+            <nav className="flex items-center gap-2 text-xs text-gray-500">
+              <Link to="/shop" className="hover:text-burgundy">Cart</Link>
+              <ChevronRight className="h-3 w-3" />
+              <span className="font-medium text-gray-900">Information</span>
+              <ChevronRight className="h-3 w-3" />
+              <span>Shipping</span>
+              <ChevronRight className="h-3 w-3" />
+              <span>Payment</span>
+            </nav>
+          </div>
+
+          <form onSubmit={handleCheckout} className="space-y-8 max-w-xl">
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-medium">Contact</h2>
+                {!user && <p className="text-sm text-gray-500">Already have an account? <Link to="/login" className="text-burgundy underline">Log in</Link></p>}
+              </div>
               <Input 
-                id="email" 
+                placeholder="Email Address" 
                 type="email"
-                required 
+                required
                 value={shipping.email}
                 onChange={e => setShipping(s => ({ ...s, email: e.target.value }))}
-                className="border-gold/20 focus:border-gold bg-white"
-                placeholder="your@email.com"
+                className="h-12 border-gray-300 focus:ring-burgundy"
               />
-            </div>
+            </section>
 
-            <div className="space-y-2">
+            <section className="space-y-4">
+              <h2 className="text-lg font-medium">Shipping address</h2>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <Input 
+                  placeholder="First name" 
+                  required
+                  value={shipping.firstName}
+                  onChange={e => setShipping(s => ({ ...s, firstName: e.target.value }))}
+                  className="h-12 border-gray-300 focus:ring-burgundy"
+                />
+                <Input 
+                  placeholder="Last name" 
+                  required
+                  value={shipping.lastName}
+                  onChange={e => setShipping(s => ({ ...s, lastName: e.target.value }))}
+                  className="h-12 border-gray-300 focus:ring-burgundy"
+                />
+              </div>
 
-              <Label htmlFor="region">Region / Province</Label>
-              <Select 
-                value={shipping.region} 
-                onValueChange={(val) => setShipping(s => ({ ...s, region: val }))}
-                required
-              >
-                <SelectTrigger className="border-gold/20 focus:border-gold bg-white">
-                  <SelectValue placeholder="Select a region" />
-                </SelectTrigger>
-                <SelectContent>
-                  {shippingRates?.map((rate: any) => (
-                    <SelectItem key={rate.id} value={rate.region}>
-                      {rate.region}
-                    </SelectItem>
-                  ))}
-                  {(!shippingRates || shippingRates.length === 0) && (
-                    <SelectItem value="Mpumalanga">Mpumalanga (Default)</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
               <Input 
-                id="address" 
-                required 
+                placeholder="Address" 
+                required
                 value={shipping.address}
                 onChange={e => setShipping(s => ({ ...s, address: e.target.value }))}
-                className="border-gold/20 focus:border-gold bg-white"
+                className="h-12 border-gray-300 focus:ring-burgundy"
               />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
+
+              <Input 
+                placeholder="Apartment, suite, etc. (optional)" 
+                value={shipping.apartment}
+                onChange={e => setShipping(s => ({ ...s, apartment: e.target.value }))}
+                className="h-12 border-gray-300 focus:ring-burgundy"
+              />
+
+              <div className="grid grid-cols-3 gap-4">
                 <Input 
-                  id="city" 
-                  required 
+                  placeholder="City" 
+                  required
                   value={shipping.city}
                   onChange={e => setShipping(s => ({ ...s, city: e.target.value }))}
-                  className="border-gold/20 focus:border-gold bg-white"
+                  className="h-12 border-gray-300 focus:ring-burgundy col-span-1"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="postalCode">Postal Code</Label>
+                <div className="col-span-1">
+                  <Select 
+                    value={shipping.region} 
+                    onValueChange={(val) => setShipping(s => ({ ...s, region: val }))}
+                    required
+                  >
+                    <SelectTrigger className="h-12 border-gray-300 focus:ring-burgundy">
+                      <SelectValue placeholder="Region" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {shippingRates?.map((rate: any) => (
+                        <SelectItem key={rate.id} value={rate.region}>
+                          {rate.region}
+                        </SelectItem>
+                      ))}
+                      {(!shippingRates || shippingRates.length === 0) && (
+                        <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Input 
-                  id="postalCode" 
-                  required 
+                  placeholder="Postal code" 
+                  required
                   value={shipping.postalCode}
                   onChange={e => setShipping(s => ({ ...s, postalCode: e.target.value }))}
-                  className="border-gold/20 focus:border-gold bg-white"
+                  className="h-12 border-gray-300 focus:ring-burgundy col-span-1"
                 />
               </div>
-            </div>
-          </div>
-          
-          <Button 
-            type="submit" 
-            disabled={loading}
-            className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90"
-          >
-            {loading ? 'Processing...' : `Pay R ${grandTotal.toFixed(2)}`}
-          </Button>
-        </form>
 
-        <div className="space-y-6">
-          <h3 className="text-xl font-serif text-primary">Order Summary</h3>
-          <div className="rounded-2xl border border-gold/10 bg-cream/30 p-8 space-y-4">
-            <div className="space-y-2">
-              {items.map((item: import("@/hooks/use-cart").CartItem) => (
-                <div key={`${item.id}-${item.variantId}`} className="flex justify-between py-2 text-sm border-b border-gold/5 last:border-0">
-                  <span>{item.name} (x{item.quantity})</span>
-                  <span className="font-medium">R {(item.price * item.quantity).toFixed(2)}</span>
+              <Input 
+                placeholder="Phone" 
+                type="tel"
+                required
+                value={shipping.phone}
+                onChange={e => setShipping(s => ({ ...s, phone: e.target.value }))}
+                className="h-12 border-gray-300 focus:ring-burgundy"
+              />
+            </section>
+
+            <div className="flex items-center justify-between pt-4">
+              <Link to="/shop" className="text-burgundy flex items-center gap-1 text-sm">
+                <ChevronLeft className="h-4 w-4" />
+                Return to cart
+              </Link>
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="bg-burgundy px-8 py-6 text-base font-medium hover:bg-burgundy/90"
+              >
+                {loading ? 'Processing...' : 'Continue to payment'}
+              </Button>
+            </div>
+          </form>
+          
+          <div className="mt-16 pt-8 border-t border-gray-200">
+            <nav className="flex gap-4 text-[10px] text-gray-500 underline">
+              <Link to="/contact">Refund policy</Link>
+              <Link to="/contact">Shipping policy</Link>
+              <Link to="/contact">Privacy policy</Link>
+              <Link to="/contact">Terms of service</Link>
+            </nav>
+          </div>
+        </div>
+
+        {/* Right Column: Summary */}
+        <div className="hidden lg:block border-l border-gray-200 bg-gray-50 px-8 py-16">
+          <div className="sticky top-16 space-y-6">
+            <div className="space-y-4">
+              {items.map((item) => (
+                <div key={`${item.id}-${item.variantId}`} className="flex items-center gap-4">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-md border border-gray-200 bg-white">
+                    <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+                    <Badge className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-500 p-0 text-[10px] text-white">
+                      {item.quantity}
+                    </Badge>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium">{item.name}</h4>
+                    {item.variantLabel && <p className="text-xs text-gray-500">{item.variantLabel}</p>}
+                  </div>
+                  <span className="text-sm font-medium">R {(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
 
-            <div className="space-y-2 pt-4 border-t border-gold/10">
-              <div className="flex justify-between text-sm">
+            <Separator className="bg-gray-200" />
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
-                <span>R {cartTotalPrice.toFixed(2)}</span>
+                <span className="font-medium text-gray-900">R {cartTotalPrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Shipping {shipping.region ? `(${shipping.region})` : ''}</span>
-                <span>{shippingAmount === 0 ? 'FREE' : `R ${shippingAmount.toFixed(2)}`}</span>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Shipping</span>
+                <span className="font-medium text-gray-900">{shippingAmount === 0 ? 'Calculated at next step' : `R ${shippingAmount.toFixed(2)}`}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>VAT (15%)</span>
-                <span>R {taxAmount.toFixed(2)}</span>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Estimated taxes (VAT 15%)</span>
+                <span className="font-medium text-gray-900">R {taxAmount.toFixed(2)}</span>
               </div>
-              <div className="mt-6 flex justify-between pt-4 text-xl font-bold text-primary">
-                <span>Total</span>
-                <span>R {grandTotal.toFixed(2)}</span>
+            </div>
+
+            <Separator className="bg-gray-200" />
+
+            <div className="flex justify-between items-center text-gray-900">
+              <span className="text-lg font-medium">Total</span>
+              <div className="text-right">
+                <span className="text-xs text-gray-500 mr-2">ZAR</span>
+                <span className="text-2xl font-bold">R {grandTotal.toFixed(2)}</span>
               </div>
             </div>
             
             {selectedRate?.free_shipping_threshold && cartTotalPrice < Number(selectedRate.free_shipping_threshold) && (
-              <p className="text-xs text-burgundy italic mt-2 text-center">
+              <p className="text-xs text-burgundy italic text-center">
                 Add R {(Number(selectedRate.free_shipping_threshold) - cartTotalPrice).toFixed(2)} more for FREE shipping!
               </p>
             )}
