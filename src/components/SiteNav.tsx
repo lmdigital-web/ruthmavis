@@ -20,6 +20,8 @@ export function SiteNav() {
   const [cartOpen, setCartOpen] = useState(false);
   const { user, profile, loading } = useAuth();
   const { totalItems } = useCart();
+  const cartTotalItems = totalItems();
+
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -69,9 +71,9 @@ export function SiteNav() {
             className="group relative flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 px-3 py-1.5 text-primary transition-all hover:bg-gold/10"
           >
             <ShoppingBag size={18} className="text-gold" />
-            {totalItems > 0 && (
+            {cartTotalItems > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-burgundy text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
-                {totalItems}
+                {cartTotalItems}
               </span>
             )}
           </button>

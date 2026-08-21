@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
 
 export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
+  const cartTotalItems = totalItems();
+  const cartTotalPrice = totalPrice();
+
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -22,7 +25,7 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
       <SheetContent className="flex w-full flex-col sm:max-w-md border-gold/10 bg-white shadow-xl">
         <SheetHeader className="border-b border-gold/10 pb-4">
           <SheetTitle className="flex items-center gap-2 font-serif text-2xl text-primary">
-            <ShoppingBag className="text-gold" /> Your Bag ({totalItems})
+            <ShoppingBag className="text-gold" /> Your Bag ({cartTotalItems})
           </SheetTitle>
         </SheetHeader>
 
@@ -44,7 +47,7 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
           ) : (
             <ScrollArea className="h-full pr-4">
               <div className="space-y-6">
-                {items.map((item) => (
+                {items.map((item: import("@/hooks/use-cart").CartItem) => (
                    <div key={`${item.id}-${item.variantId || 'base'}`} className="flex gap-4 pb-4 border-b border-gold/10">
                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gold/10">
                        <img
@@ -117,10 +120,10 @@ export function CartDrawer({ open, onOpenChange }: { open: boolean, onOpenChange
               <div className="flex items-center justify-between border-b border-gold/5 pb-4">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-serif text-xl font-bold text-primary">
-                  R {totalPrice.toFixed(2)}
+                  R {cartTotalPrice.toFixed(2)}
                 </span>
               </div>
-              <Button asChild className="w-full bg-burgundy py-6 text-lg hover:bg-burgundy/90 transition-all active:scale-[0.98] text-white">
+              <Button asChild className="w-full bg-burgundy py-4 text-base hover:bg-burgundy/90 transition-all active:scale-[0.98] text-white">
                 <Link to="/checkout" onClick={() => onOpenChange(false)} className="flex items-center justify-center w-full h-full">
                   Checkout Now
                 </Link>
