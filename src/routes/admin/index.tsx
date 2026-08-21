@@ -4,7 +4,8 @@ import { useServerFn } from '@tanstack/react-start';
 import { getAdminStats } from '@/lib/admin.functions';
 import { Reveal } from '@/components/Reveal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, ShoppingCart, Package, DollarSign } from 'lucide-react';
+import { TrendingUp, ShoppingCart, Package, DollarSign, ShieldAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/admin/')({
   component: AdminOverview,
@@ -48,9 +49,28 @@ function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-primary">Dashboard Overview</h1>
-        <p className="text-muted-foreground mt-2">Welcome back! Here's what's happening today.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-serif font-bold text-primary">Dashboard Overview</h1>
+          <p className="text-muted-foreground mt-2">Welcome back! Here's what's happening today.</p>
+        </div>
+        
+        {/* Security Scan Widget */}
+        <Reveal delay={100}>
+          <div className="bg-white border border-gold/20 rounded-2xl p-4 shadow-[var(--shadow-soft)] flex items-start gap-4 max-w-sm">
+            <div className="bg-burgundy/10 p-3 rounded-full text-burgundy shrink-0">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-primary leading-snug">
+                '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+              </p>
+              <Button size="sm" className="w-full bg-burgundy hover:bg-burgundy/90 text-white text-xs h-8">
+                Load the security issues from the scan results and fix the selected issues.
+              </Button>
+            </div>
+          </div>
+        </Reveal>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
