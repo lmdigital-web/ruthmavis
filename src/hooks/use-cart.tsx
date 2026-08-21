@@ -43,14 +43,28 @@ export const useCart = create<CartStore>()(
 
           if (existingIndex !== -1) {
             const newItems = [...state.items];
+            const existingItem = newItems[existingIndex];
             newItems[existingIndex] = {
-              ...newItems[existingIndex],
-              quantity: newItems[existingIndex].quantity + quantity
+              ...existingItem,
+              quantity: existingItem.quantity + quantity
             };
             return { items: newItems };
           }
           
-          return { items: [...state.items, { ...product, quantity }] };
+          const newItem: CartItem = {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image_url: product.image_url,
+            slug: product.slug,
+            quantity: quantity,
+            variantId: product.variantId,
+            variantLabel: product.variantLabel,
+            customFileUrl: product.customFileUrl,
+            customFileName: product.customFileName
+          };
+          
+          return { items: [...state.items, newItem] };
         });
       },
       removeFromCart: (key: string) => {
