@@ -69,6 +69,8 @@ export const Route = createFileRoute('/_authenticated/checkout')({
 
 function CheckoutPage() {
   const { items, totalPrice } = useCart();
+  const cartTotalPrice = totalPrice();
+
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [shipping, setShipping] = useState({
@@ -100,16 +102,17 @@ function CheckoutPage() {
 
   const shippingAmount = useMemo(() => {
     if (!selectedRate) return 0;
-    if (selectedRate.free_shipping_threshold && totalPrice >= Number(selectedRate.free_shipping_threshold)) {
+    if (selectedRate.free_shipping_threshold && cartTotalPrice >= Number(selectedRate.free_shipping_threshold)) {
       return 0;
     }
     return Number(selectedRate.price);
-  }, [selectedRate, totalPrice]);
+  }, [selectedRate, cartTotalPrice]);
 
   // Placeholder for tax (e.g. 15% VAT in SA)
   const taxRate = 0.15;
-  const taxAmount = (totalPrice + shippingAmount) * taxRate;
-  const grandTotal = totalPrice + shippingAmount + taxAmount;
+  const taxAmount = (cartTotalPrice + shippingAmount) * taxRate;
+  const grandTotal = cartTotalPrice + shippingAmount + taxAmount;
+
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,7 +135,7 @@ function CheckoutPage() {
       if (orderError) throw orderError;
 
       // 2. Create Order Items
-      const orderItems = items.map(item => ({
+      const orderItems = items.map((item: import("@/hooks/use-cart").CartItem) => ({
         order_id: order.id,
         product_id: item.id,
         quantity: item.quantity,
@@ -254,7 +257,7 @@ function CheckoutPage() {
           <h3 className="text-xl font-serif text-primary">Order Summary</h3>
           <div className="rounded-2xl border border-gold/10 bg-cream/30 p-8 space-y-4">
             <div className="space-y-2">
-              {items.map(item => (
+              {items.map((item: import("@/hooks/use-cart").CartItem) => (
                 <div key={`${item.id}-${item.variantId}`} className="flex justify-between py-2 text-sm border-b border-gold/5 last:border-0">
                   <span>{item.name} (x{item.quantity})</span>
                   <span className="font-medium">R {(item.price * item.quantity).toFixed(2)}</span>
@@ -265,7 +268,7 @@ function CheckoutPage() {
             <div className="space-y-2 pt-4 border-t border-gold/10">
               <div className="flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span>R {totalPrice.toFixed(2)}</span>
+                <span>R {cartTotalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Shipping {shipping.region ? `(${shipping.region})` : ''}</span>
@@ -281,9 +284,9 @@ function CheckoutPage() {
               </div>
             </div>
             
-            {selectedRate?.free_shipping_threshold && totalPrice < Number(selectedRate.free_shipping_threshold) && (
+            {selectedRate?.free_shipping_threshold && cartTotalPrice < Number(selectedRate.free_shipping_threshold) && (
               <p className="text-xs text-burgundy italic mt-2 text-center">
-                Add R {(Number(selectedRate.free_shipping_threshold) - totalPrice).toFixed(2)} more for FREE shipping!
+                Add R {(Number(selectedRate.free_shipping_threshold) - cartTotalPrice).toFixed(2)} more for FREE shipping!
               </p>
             )}
           </div>
