@@ -6,7 +6,7 @@ import { SectionHeading } from '@/components/SectionHeading';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { z } from 'zod';
-import { verifyPaystackPayment } from './_authenticated/checkout';
+import { verifyPaystackPayment } from './checkout';
 
 const verifySchema = z.object({
   reference: z.string(),

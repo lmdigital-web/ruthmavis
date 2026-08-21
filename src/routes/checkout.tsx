@@ -47,8 +47,8 @@ export const initializePayment = createServerFn({ method: 'POST' })
   });
 
 export const verifyPaystackPayment = createServerFn({ method: 'GET' })
-  .middleware([requireSupabaseAuth])
   .validator((data: string) => z.string().parse(data))
+
   .handler(async ({ data: reference }) => {
     const PAYSTACK_SECRET = process.env['PAYSTACK_SECRET_KEY'];
     if (!PAYSTACK_SECRET) throw new Error('Paystack secret not configured');
