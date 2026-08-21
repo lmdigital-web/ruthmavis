@@ -63,7 +63,7 @@ export const verifyPaystackPayment = createServerFn({ method: 'GET' })
     return result;
   });
 
-export const Route = createFileRoute('/_authenticated/checkout')({
+export const Route = createFileRoute('/checkout')({
   component: CheckoutPage,
 });
 
@@ -74,11 +74,13 @@ function CheckoutPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [shipping, setShipping] = useState({
+    email: '',
     address: '',
     city: '',
     postalCode: '',
     region: ''
   });
+
 
   const { data: shippingRates } = useQuery({
     queryKey: ['shipping-rates'],
@@ -90,8 +92,10 @@ function CheckoutPage() {
     if (metadata?.shipping_address) {
       setShipping(s => ({
         ...s,
-        ...metadata.shipping_address
+        ...metadata.shipping_address,
+        email: user.email || ''
       }));
+
     }
   }, [user]);
 
@@ -148,14 +152,15 @@ function CheckoutPage() {
       // 3. Initialize Paystack
       const paymentData = await initializePayment({
         data: {
-          email: user?.email!,
+          email: shipping.email,
           amount: grandTotal,
           metadata: {
             order_id: order.id,
-            user_id: user?.id
+            user_id: user?.id ?? null
           }
         }
       });
+
 
       // 4. Redirect to Paystack checkout
       window.location.href = paymentData.authorization_url;
@@ -188,6 +193,20 @@ function CheckoutPage() {
           
           <div className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input 
+                id="email" 
+                type="email"
+                required 
+                value={shipping.email}
+                onChange={e => setShipping(s => ({ ...s, email: e.target.value }))}
+                className="border-gold/20 focus:border-gold bg-white"
+                placeholder="your@email.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+
               <Label htmlFor="region">Region / Province</Label>
               <Select 
                 value={shipping.region} 
