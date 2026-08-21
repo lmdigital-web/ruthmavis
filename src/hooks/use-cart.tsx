@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export type CartItem = {
   id: string;
@@ -13,90 +14,75 @@ export type CartItem = {
   customFileName?: string;
 };
 
-export function useCart() {
-  const [items, setItems] = useState<CartItem[]>([]);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedCart = localStorage.getItem('ruth_mavis_cart');
-    if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Failed to parse cart', e);
-      }
-    }
-  }, []);
-
-  // Save to localStorage whenever items change
-  useEffect(() => {
-    localStorage.setItem('ruth_mavis_cart', JSON.stringify(items));
-  }, [items]);
-
-  const addToCart = (product: Omit<CartItem, 'quantity'>, quantity = 1) => {
-    setItems((current) => {
-      const itemKey = product.variantId 
-        ? `${product.id}-${product.variantId}` 
-        : product.id;
-      const existing = current.find((item) => {
-        const existingKey = item.variantId 
-          ? `${item.id}-${item.variantId}` 
-          : item.id;
-        return existingKey === itemKey;
-      });
-      if (existing) {
-        return current.map((item) => {
-          const existingKey = item.variantId 
-            ? `${item.id}-${item.variantId}` 
-            : item.id;
-          return existingKey === itemKey 
-            ? { ...item, quantity: item.quantity + quantity } 
-            : item;
-        });
-      }
-      return [...current, { ...product, quantity }];
-    });
-  };
-
-  const removeFromCart = (key: string) => {
-    setItems((current) => {
-      // key can be either just 'id' or 'id-variantId'
-      return current.filter((item) => {
-        const itemKey = item.variantId 
-          ? `${item.id}-${item.variantId}` 
-          : item.id;
-        return itemKey !== key;
-      });
-    });
-  };
-
-  const updateQuantity = (key: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(key);
-      return;
-    }
-    setItems((current) =>
-      current.map((item) => {
-        const itemKey = item.variantId 
-          ? `${item.id}-${item.variantId}` 
-          : item.id;
-        return itemKey === key ? { ...item, quantity } : item;
-      })
-    );
-  };
-
-  const clearCart = () => setItems([]);
-
-  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
-  const totalPrice = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-
-  return {
-    items,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    totalItems,
-    totalPrice,
-  };
+interface CartStore {
+  items: CartItem[];
+  addToCart: (product: Omit<CartItem, 'quantity'>, quantity?: number) => void;
+  removeFromCart: (key: string) => void;
+  updateQuantity: (key: string, quantity: number) => void;
+  clearCart: () => void;
+  totalItems: () => number;
+  totalPrice: () => number;
 }
+
+export const useCart = create<CartStore>()(
+  persist(
+    (set, get) => ({
+      items: [],
+      addToCart: (product, quantity = 1) => {
+        set((state) => {
+          const itemKey = product.variantId 
+            ? `${product.id}-${product.variantId}` 
+            : product.id;
+          
+          const existingIndex = state.items.findIndex((item) => {
+            const existingKey = item.variantId 
+              ? `${item.id}-${item.variantId}` 
+              : item.id;
+            return existingKey === itemKey;
+          });
+
+          if (existingIndex !== -1) {
+            const newItems = [...state.items];
+            newItems[existingIndex] = {
+              ...newItems[existingIndex],
+              quantity: newItems[existingIndex].quantity + quantity
+            };
+            return { items: newItems };
+          }
+          
+          return { items: [...state.items, { ...product, quantity }] };
+        });
+      },
+      removeFromCart: (key) => {
+        set((state) => ({
+          items: state.items.filter((item) => {
+            const itemKey = item.variantId 
+              ? `${item.id}-${item.variantId}` 
+              : item.id;
+            return itemKey !== key;
+          }),
+        }));
+      },
+      updateQuantity: (key, quantity) => {
+        if (quantity <= 0) {
+          get().removeFromCart(key);
+          return;
+        }
+        set((state) => ({
+          items: state.items.map((item) => {
+            const itemKey = item.variantId 
+              ? `${item.id}-${item.variantId}` 
+              : item.id;
+            return itemKey === key ? { ...item, quantity } : item;
+          }),
+        }));
+      },
+      clearCart: () => set({ items: [] }),
+      totalItems: () => get().items.reduce((acc, item) => acc + item.quantity, 0),
+      totalPrice: () => get().items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+    }),
+    {
+      name: 'ruth-mavis-cart-storage',
+    }
+  )
+);
