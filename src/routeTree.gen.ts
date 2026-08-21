@@ -13,13 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PaymentVerifyRouteImport } from './routes/payment-verify'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
-import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminCustomersRouteImport } from './routes/admin/customers'
 import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
@@ -46,6 +46,11 @@ const AboutRoute = AboutRouteImport.update({
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -76,11 +81,6 @@ const ShopRoute = ShopRouteImport.update({
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
   path: '/account',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -129,13 +129,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/payment-verify': typeof PaymentVerifyRoute
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/checkout': typeof AuthenticatedCheckoutRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -148,13 +148,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/payment-verify': typeof PaymentVerifyRoute
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/checkout': typeof AuthenticatedCheckoutRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -170,13 +170,13 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/payment-verify': typeof PaymentVerifyRoute
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
-  '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -192,13 +192,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/about'
+    | '/checkout'
     | '/contact'
     | '/login'
     | '/payment-verify'
     | '/register'
     | '/shop'
     | '/account'
-    | '/checkout'
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
@@ -211,13 +211,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/checkout'
     | '/contact'
     | '/login'
     | '/payment-verify'
     | '/register'
     | '/shop'
     | '/account'
-    | '/checkout'
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
@@ -232,13 +232,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/_authenticated'
     | '/about'
+    | '/checkout'
     | '/contact'
     | '/login'
     | '/payment-verify'
     | '/register'
     | '/shop'
     | '/_authenticated/account'
-    | '/_authenticated/checkout'
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
@@ -254,6 +254,7 @@ export interface RootRouteChildren {
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
+  CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
   PaymentVerifyRoute: typeof PaymentVerifyRoute
@@ -291,6 +292,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -333,13 +341,6 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/checkout': {
-      id: '/_authenticated/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/admin/': {
@@ -425,12 +426,10 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
-  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
-  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -442,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRouteRoute: AdminRouteRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
+  CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
   PaymentVerifyRoute: PaymentVerifyRoute,
