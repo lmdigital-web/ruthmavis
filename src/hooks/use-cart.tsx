@@ -44,10 +44,12 @@ export const useCart = create<CartStore>()(
           if (existingIndex !== -1) {
             const newItems = [...state.items];
             const existingItem = newItems[existingIndex];
-            newItems[existingIndex] = {
-              ...existingItem,
-              quantity: existingItem.quantity + quantity
-            };
+            if (existingItem) {
+              newItems[existingIndex] = {
+                ...existingItem,
+                quantity: existingItem.quantity + quantity
+              };
+            }
             return { items: newItems };
           }
           
@@ -58,10 +60,10 @@ export const useCart = create<CartStore>()(
             image_url: product.image_url,
             slug: product.slug,
             quantity: quantity,
-            variantId: product.variantId,
-            variantLabel: product.variantLabel,
-            customFileUrl: product.customFileUrl,
-            customFileName: product.customFileName
+            ...(product.variantId ? { variantId: product.variantId } : {}),
+            ...(product.variantLabel ? { variantLabel: product.variantLabel } : {}),
+            ...(product.customFileUrl ? { customFileUrl: product.customFileUrl } : {}),
+            ...(product.customFileName ? { customFileName: product.customFileName } : {})
           };
           
           return { items: [...state.items, newItem] };
