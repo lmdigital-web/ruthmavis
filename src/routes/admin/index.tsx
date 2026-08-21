@@ -66,7 +66,10 @@ function AdminOverview() {
                 '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
               </p>
               <Button size="sm" className="w-full bg-burgundy hover:bg-burgundy/90 text-white text-xs h-8">
-                i noticed if i add something to the cart, then i click the cart icon, not shows in the pop up side bar, i have to refresh the page then only it shows in cart, can you fix this
+                i did not mention the admin dashbord, i meant the site im testing as a user, if i add a product to bag, then i click the bag icon, it slides in fron the right, but its shows no product in there, once i refresh the page, then only it pops up, also the checkout button in the bag is too big, we need to make it smaller.
+                
+                then when we click check out, it must take us to a checkout page, not the login page page, we also like to client to check out as a guest if they like
+
               </Button>
             </div>
           </div>
