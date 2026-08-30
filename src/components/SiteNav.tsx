@@ -68,9 +68,9 @@ export function SiteNav() {
           
           <button
             onClick={() => setCartOpen(true)}
-            className="group relative flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 px-3 py-1.5 text-primary transition-all hover:bg-gold/10"
+            className="group relative flex items-center gap-2 rounded-full border border-burgundy/30 bg-burgundy/5 px-3 py-1.5 text-burgundy transition-all hover:bg-burgundy/10"
           >
-            <ShoppingBag size={18} className="text-gold" />
+            <ShoppingBag size={18} className="text-burgundy" />
             {cartTotalItems > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-burgundy text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
                 {cartTotalItems}
