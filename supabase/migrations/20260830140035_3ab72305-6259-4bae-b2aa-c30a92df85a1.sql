@@ -1,0 +1,10 @@
+CREATE POLICY "service_role all access" ON public.profiles FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.categories FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.products FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.orders FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.order_items FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.product_variants FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.product_images FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.shipping_rates FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.store_settings FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "service_role all access" ON public.user_roles FOR ALL TO service_role USING (true) WITH CHECK (true);
