@@ -57,7 +57,7 @@ export function SiteNav() {
               key={link.to}
               to={link.to}
               activeOptions={{ exact: link.to === "/" }}
-              className="group relative font-sans text-sm tracking-wide text-foreground/80 transition-colors hover:text-primary data-[status=active]:text-primary"
+              className="group relative font-sans text-sm font-semibold tracking-wide text-burgundy transition-colors hover:text-burgundy/70 data-[status=active]:text-burgundy"
             >
               {link.label}
               <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-gold transition-transform duration-300 group-hover:scale-x-100 group-data-[status=active]:scale-x-100" />
