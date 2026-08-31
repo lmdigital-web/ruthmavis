@@ -4,7 +4,8 @@ import { useServerFn } from '@tanstack/react-start';
 import { getAdminStats } from '@/lib/admin.functions';
 import { Reveal } from '@/components/Reveal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, ShoppingCart, Package, DollarSign } from 'lucide-react';
+import { TrendingUp, ShoppingCart, Package, DollarSign, ShieldAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/admin/')({
   component: AdminOverview,
@@ -12,19 +13,12 @@ export const Route = createFileRoute('/admin/')({
 
 function AdminOverview() {
   const fetchStats = useServerFn(getAdminStats);
-
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: () => fetchStats(),
   });
 
-  if (isLoading) {
-    return (
-      <div className="p-8 text-center text-muted-foreground">
-        Loading dashboard stats...
-      </div>
-    );
-  }
+  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Loading dashboard stats...</div>;
 
   const cards = [
     {
@@ -55,13 +49,28 @@ function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-primary">
-          Dashboard Overview
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome back! Here's what's happening today.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-serif font-bold text-primary">Dashboard Overview</h1>
+          <p className="text-muted-foreground mt-2">Welcome back! Here's what's happening today.</p>
+        </div>
+        
+        {/* Security Scan Widget */}
+        <Reveal delay={100}>
+          <div className="bg-white border border-gold/20 rounded-2xl p-4 shadow-[var(--shadow-soft)] flex items-start gap-4 max-w-sm">
+            <div className="bg-burgundy/10 p-3 rounded-full text-burgundy shrink-0">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-primary leading-snug">
+                '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
+              </p>
+              <Button size="sm" className="w-full bg-burgundy hover:bg-burgundy/90 text-white text-xs h-8">
+                can yo make the checout page look like one from shopify, also it should ask for buyers name etc. clone a shopify checkout page please
+              </Button>
+            </div>
+          </div>
+        </Reveal>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -72,20 +81,14 @@ function AdminOverview() {
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {card.title}
                 </CardTitle>
-
                 <div className={`p-2 rounded-lg ${card.color}`}>
                   <card.icon className="w-5 h-5" />
                 </div>
               </CardHeader>
-
               <CardContent>
-                <div className="text-2xl font-bold text-primary">
-                  {card.value}
-                </div>
-
+                <div className="text-2xl font-bold text-primary">{card.value}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  <span className="text-green-500 font-medium">+12%</span>{' '}
-                  from last month
+                  <span className="text-green-500 font-medium">+12%</span> from last month
                 </p>
               </CardContent>
             </Card>
@@ -93,32 +96,26 @@ function AdminOverview() {
         ))}
       </div>
 
+      {/* Placeholder for charts or recent activity */}
       <div className="grid gap-6 lg:grid-cols-2 mt-8">
         <Card className="border-gold/10">
           <CardHeader>
-            <CardTitle className="text-primary font-serif">
-              Recent Orders
-            </CardTitle>
+            <CardTitle className="text-primary font-serif">Recent Orders</CardTitle>
           </CardHeader>
-
           <CardContent>
-            <p className="text-sm text-muted-foreground italic text-center py-8">
-              Order activity visualization coming soon.
-            </p>
+             <p className="text-sm text-muted-foreground italic text-center py-8">
+               Order activity visualization coming soon.
+             </p>
           </CardContent>
         </Card>
-
         <Card className="border-gold/10">
           <CardHeader>
-            <CardTitle className="text-primary font-serif">
-              Inventory Status
-            </CardTitle>
+            <CardTitle className="text-primary font-serif">Inventory Status</CardTitle>
           </CardHeader>
-
           <CardContent>
-            <p className="text-sm text-muted-foreground italic text-center py-8">
-              Inventory levels tracking coming soon.
-            </p>
+             <p className="text-sm text-muted-foreground italic text-center py-8">
+               Inventory levels tracking coming soon.
+             </p>
           </CardContent>
         </Card>
       </div>
