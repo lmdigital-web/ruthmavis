@@ -4,8 +4,6 @@ import { getRequest } from '@tanstack/react-start/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './types'
 
-
-
 function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
 }
@@ -13,39 +11,61 @@ function isNewSupabaseApiKey(value: string): boolean {
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
   return (input, init) => {
     const headers = new Headers(
-      typeof Request !== 'undefined' && input instanceof Request ? input.headers : undefined,
+      typeof Request !== 'undefined' && input instanceof Request
+        ? input.headers
+        : undefined,
     );
 
     if (init?.headers) {
-      new Headers(init.headers).forEach((value, key) => headers.set(key, value));
+      new Headers(init.headers).forEach((value, key) => {
+        headers.set(key, value);
+      });
     }
 
     // New Supabase API keys are opaque strings, not bearer JWTs.
-    if (isNewSupabaseApiKey(supabaseKey) && headers.get('Authorization') === `Bearer ${supabaseKey}`) {
+    if (
+      isNewSupabaseApiKey(supabaseKey) &&
+      headers.get('Authorization') === `Bearer ${supabaseKey}`
+    ) {
       headers.delete('Authorization');
     }
 
     headers.set('apikey', supabaseKey);
-    return fetch(input, { ...init, headers });
+
+    return fetch(input, {
+      ...init,
+      headers,
+    });
   };
 }
 
 export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server(
   async ({ next }) => {
-    
-    const SUPABASE_URL = process.env['EXTERNAL_SUPABASE_URL'] || process.env['SUPABASE_URL'];
-    const SUPABASE_PUBLISHABLE_KEY = process.env['EXTERNAL_SUPABASE_PUBLISHABLE_KEY'] || process.env['SUPABASE_PUBLISHABLE_KEY'];
+    const SUPABASE_URL =
+      process.env['EXTERNAL_SUPABASE_URL'] ||
+      process.env['SUPABASE_URL'] ||
+      process.env['VITE_SUPABASE_URL'];
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      process.env['EXTERNAL_SUPABASE_PUBLISHABLE_KEY'] ||
+      process.env['SUPABASE_PUBLISHABLE_KEY'] ||
+      process.env['VITE_SUPABASE_PUBLISHABLE_KEY'];
 
     if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
       const missing = [
         ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
         ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
       ];
-      const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
+
+      const message =
+        `Missing Supabase environment variable(s): ${missing.join(', ')}. ` +
+        `Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in the server environment.`;
+
       console.error(`[Supabase] ${message}`);
+
       throw new Error(message);
     }
-    
+
     const request = getRequest();
 
     if (!request?.headers) {
@@ -63,6 +83,7 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     }
 
     const token = authHeader.replace('Bearer ', '');
+
     if (!token) {
       throw new Error('Unauthorized: No token provided');
     }
@@ -72,11 +93,11 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     }
 
     const supabase = createClient<Database>(
-      SUPABASE_URL!,
-      SUPABASE_PUBLISHABLE_KEY!,
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
       {
         global: {
-          fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY!),
+          fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -90,6 +111,7 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     );
 
     const { data, error } = await supabase.auth.getClaims(token);
+
     if (error || !data?.claims) {
       throw new Error('Unauthorized: Invalid token');
     }
@@ -112,14 +134,19 @@ export const requireAdminAuth = createMiddleware({ type: 'function' })
   .middleware([requireSupabaseAuth])
   .server(async ({ next, context }) => {
     const { supabase, userId } = context;
-    
+
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', userId)
       .single();
 
-    if (error || profile?.role !== 'admin') {
+    if (error) {
+      console.error('[Supabase] Failed to load admin profile:', error);
+      throw new Error('Unauthorized: Unable to verify admin profile');
+    }
+
+    if (profile?.role !== 'admin') {
       throw new Error('Unauthorized: Admin access required');
     }
 
