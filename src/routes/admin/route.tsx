@@ -1,29 +1,44 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from '@tanstack/react-router';
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Package,
+  LogOut,
+  Users,
+  Settings,
+  Truck,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
       throw redirect({ to: '/login' });
     }
 
-    const { data: profile } = await supabase
-      .from('profiles')
+    const { data: userRole, error } = await supabase
+      .from('user_roles')
       .select('role')
-      .eq('id', session.user.id)
-      .single();
+      .eq('user_id', session.user.id)
+      .maybeSingle();
 
-    if (profile?.role !== 'admin') {
+    if (error) {
+      console.error('Failed to load user role:', error);
+      throw redirect({ to: '/' });
+    }
+
+    if (userRole?.role !== 'admin') {
       throw redirect({ to: '/' });
     }
   },
   component: AdminLayout,
 });
-
-import { Link } from '@tanstack/react-router';
-import { LayoutDashboard, ShoppingBag, Package, LogOut, Users, Settings, Truck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 function AdminLayout() {
   return (
@@ -35,7 +50,9 @@ function AdminLayout() {
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-serif text-xl">
               RM
             </div>
-            <span className="font-serif text-xl font-bold text-primary">Admin</span>
+            <span className="font-serif text-xl font-bold text-primary">
+              Admin
+            </span>
           </Link>
         </div>
 
@@ -48,6 +65,7 @@ function AdminLayout() {
             <LayoutDashboard className="w-5 h-5" />
             <span>Overview</span>
           </Link>
+
           <Link
             to="/admin/products"
             className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"
@@ -56,6 +74,7 @@ function AdminLayout() {
             <Package className="w-5 h-5" />
             <span>Products</span>
           </Link>
+
           <Link
             to="/admin/orders"
             className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"
@@ -64,6 +83,7 @@ function AdminLayout() {
             <ShoppingBag className="w-5 h-5" />
             <span>Orders</span>
           </Link>
+
           <Link
             to="/admin/customers"
             className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"
@@ -72,6 +92,7 @@ function AdminLayout() {
             <Users className="w-5 h-5" />
             <span>Customers</span>
           </Link>
+
           <Link
             to="/admin/shipping"
             className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"
@@ -80,6 +101,7 @@ function AdminLayout() {
             <Truck className="w-5 h-5" />
             <span>Shipping</span>
           </Link>
+
           <Link
             to="/admin/settings"
             className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-primary/5 text-muted-foreground [&.active]:bg-primary [&.active]:text-white"

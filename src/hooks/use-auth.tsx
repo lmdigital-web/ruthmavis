@@ -19,44 +19,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions and sets the user
+    const loadUserRole = async (userId: string) => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Failed to load user role:', error);
+        setProfile({ role: null });
+        return;
+      }
+
+      setProfile(data ? { role: String(data.role) } : { role: null });
+    };
+
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        setProfile(data);
+        await loadUserRole(session.user.id);
       } else {
         setProfile(null);
       }
-      
+
       setLoading(false);
     };
 
     checkSession();
 
-    // Listen for changes on auth state (sign in, sign out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        setProfile(data);
+        await loadUserRole(session.user.id);
       } else {
         setProfile(null);
       }
-      
+
       setLoading(false);
     });
 
@@ -76,8 +85,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 }
