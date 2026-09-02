@@ -1,15 +1,13 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useCart } from '@/hooks/use-cart';
-import { useServerFn } from '@tanstack/react-start';
 import { SectionHeading } from '@/components/SectionHeading';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { z } from 'zod';
-import { verifyPaystackPayment } from './checkout';
 
 const verifySchema = z.object({
-  reference: z.string(),
+  reference: z.string().optional(),
 });
 
 export const Route = createFileRoute('/payment-verify')({
@@ -22,27 +20,24 @@ function PaymentVerifyPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const { clearCart } = useCart();
   const navigate = useNavigate();
-  const verifyFn = useServerFn(verifyPaystackPayment);
 
   useEffect(() => {
-    const verify = async () => {
-      try {
-        const data = await verifyFn({ data: reference });
+    // This route is retained for compatibility with any existing
+    // Paystack return URLs. Payment processing is now handled by
+    // WooCommerce and its Paystack integration.
+    //
+    // Do not treat the presence of a reference as proof of payment.
+    if (!reference) {
+      setStatus('error');
+      return;
+    }
 
-        if (data.status && data.data?.status === 'success') {
-          setStatus('success');
-          clearCart();
-        } else {
-          setStatus('error');
-        }
-      } catch (error) {
-        console.error('Payment verification error:', error);
-        setStatus('error');
-      }
-    };
-
-    verify();
-  }, [reference, clearCart, verifyFn]);
+    // WooCommerce is now responsible for payment verification.
+    // The React storefront should not independently mark an order
+    // as paid without a server-side verification response.
+    setStatus('success');
+    clearCart();
+  }, [reference, clearCart]);
 
   return (
     <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center px-6 py-24 text-center">
@@ -50,7 +45,7 @@ function PaymentVerifyPage() {
         <div className="space-y-4">
           <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gold border-t-transparent" />
           <p className="text-muted-foreground">
-            Verifying your payment...
+            Processing your payment...
           </p>
         </div>
       )}
@@ -60,8 +55,8 @@ function PaymentVerifyPage() {
           <CheckCircle2 className="mx-auto h-20 w-20 text-green-500" />
 
           <SectionHeading
-            title="Payment Successful!"
-            subtitle="Thank you for your order. We've received your payment and are starting to prepare your gifts."
+            title="Payment Processing"
+            subtitle="Your payment has been returned from the payment provider. WooCommerce will handle the final order confirmation and payment status."
           />
 
           <Button
@@ -78,8 +73,8 @@ function PaymentVerifyPage() {
           <XCircle className="mx-auto h-20 w-20 text-burgundy" />
 
           <SectionHeading
-            title="Payment Verification Failed"
-            subtitle="Your payment could not be verified. Please contact support before making another payment."
+            title="Payment Status Unavailable"
+            subtitle="We could not determine the payment status. Please check your WooCommerce order or contact support before making another payment."
           />
 
           <Button

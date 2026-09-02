@@ -2,10 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Menu, X, User as UserIcon, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { CartDrawer } from "./CartDrawer";
-
 
 const links = [
   { to: "/", label: "Home" },
@@ -14,21 +12,29 @@ const links = [
   { to: "/contact", label: "Contact" },
 ] as const;
 
+const WOOCOMMERCE_ACCOUNT_URL =
+  "https://shop.ruthmavisaccessories.co.za/my-account/";
+
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const { user, profile, loading } = useAuth();
   const { totalItems } = useCart();
   const cartTotalItems = totalItems();
 
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
+
     onScroll();
+
     window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleAccountClick = () => {
+    setOpen(false);
+  };
 
   return (
     <header
@@ -40,7 +46,11 @@ export function SiteNav() {
       )}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-2 sm:px-8">
-        <Link to="/" className="group flex items-center gap-3 min-w-0" onClick={() => setOpen(false)}>
+        <Link
+          to="/"
+          className="group flex min-w-0 items-center gap-3"
+          onClick={() => setOpen(false)}
+        >
           <img
             src="/logo.png"
             alt="Ruth Mavis Accessories"
@@ -60,17 +70,20 @@ export function SiteNav() {
               className="group relative font-sans text-sm font-semibold tracking-wide text-burgundy transition-colors hover:text-burgundy/70 data-[status=active]:text-burgundy"
             >
               {link.label}
+
               <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-gold transition-transform duration-300 group-hover:scale-x-100 group-data-[status=active]:scale-x-100" />
             </Link>
           ))}
-          
+
           <div className="ml-2 h-4 w-px bg-gold/30" />
-          
+
           <button
             onClick={() => setCartOpen(true)}
             className="group relative flex items-center gap-2 rounded-full border border-burgundy/30 bg-burgundy/5 px-3 py-1.5 text-burgundy transition-all hover:bg-burgundy/10"
+            aria-label="Open shopping bag"
           >
             <ShoppingBag size={18} className="text-burgundy" />
+
             {cartTotalItems > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-burgundy text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
                 {cartTotalItems}
@@ -78,24 +91,14 @@ export function SiteNav() {
             )}
           </button>
 
-          {!loading && user && profile?.role === 'admin' && (
-            <Link
-              to="/admin"
-              className="font-sans text-sm tracking-wide text-burgundy font-medium hover:text-burgundy/80"
-            >
-              Admin
-            </Link>
-          )}
-
-          {!loading && (
-            <Link
-              to={user ? "/account" : "/login"}
-              className="flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-1.5 font-sans text-sm tracking-wide text-primary transition-all hover:bg-gold/15 active:scale-95"
-            >
-              <UserIcon size={16} className="text-gold" />
-              {user ? "Account" : "Login"}
-            </Link>
-          )}
+          <a
+            href={WOOCOMMERCE_ACCOUNT_URL}
+            onClick={handleAccountClick}
+            className="flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-1.5 font-sans text-sm tracking-wide text-primary transition-all hover:bg-gold/15 active:scale-95"
+          >
+            <UserIcon size={16} className="text-gold" />
+            Login
+          </a>
         </div>
 
         <button
@@ -125,18 +128,18 @@ export function SiteNav() {
               {link.label}
             </Link>
           ))}
-          {!loading && (
-            <Link
-              to={user ? "/account" : "/login"}
-              onClick={() => setOpen(false)}
-              className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-burgundy py-3 font-sans text-sm font-medium text-white transition-opacity hover:opacity-90"
-            >
-              <UserIcon size={16} />
-              {user ? "My Account" : "Sign In"}
-            </Link>
-          )}
+
+          <a
+            href={WOOCOMMERCE_ACCOUNT_URL}
+            onClick={handleAccountClick}
+            className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-burgundy py-3 font-sans text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            <UserIcon size={16} />
+            Login / My Account
+          </a>
         </div>
       </div>
+
       <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
     </header>
   );
