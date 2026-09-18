@@ -2,6 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
+const shopCategorySlugs = [
+  "bibles",
+  "bible-combos",
+  "crochet-bags",
+  "devotions",
+  "bible-bags",
+] as const;
+
 export const getProducts = createServerFn({ method: "GET" })
   .validator((data) => z.object({
     category: z.string().optional(),
@@ -9,13 +17,26 @@ export const getProducts = createServerFn({ method: "GET" })
     sort: z.enum(["newest", "price-low", "price-high", "name-az", "name-za"]).optional(),
   }).parse(data))
   .handler(async ({ data }) => {
-    let query = supabase
-      .from("products")
-      .select("*, categories(name, slug)")
-      .eq("is_active", true);
+    let categoryId: string | null = null;
 
     if (data.category && data.category !== "all") {
-      query = query.eq("categories.slug", data.category);
+      const { data: category, error: categoryError } = await supabase
+        .from("categories")
+        .select("id, name, slug")
+        .eq("slug", data.category)
+        .maybeSingle();
+
+      if (categoryError) throw categoryError;
+      categoryId = category?.id ?? null;
+    }
+
+    let query = supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true);
+
+    if (categoryId) {
+      query = query.eq("category_id", categoryId);
     }
 
     if (data.search) {
@@ -37,7 +58,29 @@ export const getProducts = createServerFn({ method: "GET" })
 
     if (error) throw error;
 
-    return products || [];
+    if (!products || products.length === 0) {
+      return [];
+    }
+
+    const categoryIds = [...new Set(products.map((product: any) => product.category_id).filter(Boolean))];
+
+    const { data: categories, error: categoriesError } = categoryIds.length
+      ? await supabase
+          .from("categories")
+          .select("id, name, slug")
+          .in("id", categoryIds)
+      : { data: [], error: null };
+
+    if (categoriesError) throw categoriesError;
+
+    const categoryMap = new Map(
+      (categories || []).map((category: any) => [category.id, category])
+    );
+
+    return products.map((product: any) => ({
+      ...product,
+      categories: product.category_id ? categoryMap.get(product.category_id) ?? null : null,
+    }));
   });
 
 export const getProductBySlug = createServerFn({ method: "GET" })
@@ -63,11 +106,18 @@ export const getCategories = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data: categories, error } = await supabase
       .from("categories")
-      .select("*")
-      .order("name");
+      .select("id, name, slug")
+      .in("slug", shopCategorySlugs);
 
     if (error) throw error;
-    return categories || [];
+
+    const categoryMap = new Map(
+      (categories || []).map((category: any) => [category.slug, category])
+    );
+
+    return shopCategorySlugs
+      .map((slug) => categoryMap.get(slug))
+      .filter(Boolean);
   });
 
 export const getProductVariants = createServerFn({ method: "GET" })
