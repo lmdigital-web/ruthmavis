@@ -2,10 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Mail, MapPin, Music2, Phone } from "lucide-react";
 import { Flourish } from "./Flourish";
 
-
 export const contactDetails = {
-  email: "hello@ruthmavisaccessories.co.za",
-  phone: "079 735 0437",
+  email: "rm@ruthmavisaccessories.co.za",
+  phone: "076 213 4488",
   tiktok: "https://www.tiktok.com/@ruthmavisaccessories",
   tiktokHandle: "@ruthmavisaccessories",
   location: "Nelspruit, Mpumalanga, 1201",
