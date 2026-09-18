@@ -3,9 +3,10 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
 export const getProducts = createServerFn({ method: "GET" })
-  .validator((data) => z.object({ 
+  .validator((data) => z.object({
     category: z.string().optional(),
-    search: z.string().optional()
+    search: z.string().optional(),
+    sort: z.enum(["newest", "price-low", "price-high", "name-az", "name-za"]).optional(),
   }).parse(data))
   .handler(async ({ data }) => {
     let query = supabase
@@ -13,7 +14,7 @@ export const getProducts = createServerFn({ method: "GET" })
       .select("*, categories(name, slug)")
       .eq("is_active", true);
 
-    if (data.category && data.category !== 'all') {
+    if (data.category && data.category !== "all") {
       query = query.eq("categories.slug", data.category);
     }
 
@@ -21,13 +22,21 @@ export const getProducts = createServerFn({ method: "GET" })
       query = query.ilike("name", `%${data.search}%`);
     }
 
-    const { data: products, error } = await query.order("created_at", { ascending: false });
+    const sort = data.sort ?? "newest";
+    const sortConfig = {
+      newest: { column: "created_at", ascending: false },
+      "price-low": { column: "price", ascending: true },
+      "price-high": { column: "price", ascending: false },
+      "name-az": { column: "name", ascending: true },
+      "name-za": { column: "name", ascending: false },
+    } as const;
+
+    const { data: products, error } = await query.order(sortConfig[sort].column, {
+      ascending: sortConfig[sort].ascending,
+    });
 
     if (error) throw error;
-    
-    // Filter out products where category slug didn't match if joined with eq filter
-    // Supabase returns null for the join if it doesn't match, so we filter in JS if needed
-    // Actually, eq("categories.slug", data.category) on the join table handles it if configured correctly
+
     return products || [];
   });
 
@@ -42,12 +51,11 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       .single();
 
     if (error) throw error;
-    
-    // Ensure product_images is sorted by display_order
+
     if (product.product_images) {
       product.product_images.sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
     }
-    
+
     return product;
   });
 
@@ -82,10 +90,7 @@ export const uploadCustomFile = createServerFn({ method: "POST" })
     userId: z.string(),
   }).parse(data))
   .handler(async ({ data: { fileName, fileBase64, userId } }) => {
-    // Convert base64 to buffer
     const buffer = Buffer.from(fileBase64, 'base64');
-    
-    // Generate unique filename with timestamp
     const timestamp = Date.now();
     const safeName = fileName.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
     const filePath = `${userId}/${timestamp}_${safeName}`;
@@ -100,7 +105,6 @@ export const uploadCustomFile = createServerFn({ method: "POST" })
 
     if (uploadError) throw uploadError;
 
-    // Get the public URL
     const { data: { publicUrl } } = supabase
       .storage
       .from('customer-uploads')
