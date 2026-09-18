@@ -6,10 +6,10 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { BotanicalSprig, Flourish } from "@/components/Flourish";
 import { contactDetails } from "@/components/SiteFooter";
 import heroFloral from "@/assets/hero-floral.jpg";
-import imgBibles from "@/assets/collection-bibles.jpg";
-import imgDevotionals from "@/assets/collection-devotionals.jpg";
-import imgCrochet from "@/assets/collection-crochet.jpg";
-import imgCombos from "@/assets/collection-combos.jpg";
+import imgBibles from "@/assets/Decorative Bibles.jpeg";
+import imgDevotionals from "@/assets/Devotionals.jpeg";
+import imgCrochet from "@/assets/Crochet Bags.jpeg";
+import imgCombos from "@/assets/Gift Combos.jpeg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
