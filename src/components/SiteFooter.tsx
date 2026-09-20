@@ -1,10 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Music2, Phone } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, Music2, Phone } from "lucide-react";
 import { Flourish } from "./Flourish";
 
 export const contactDetails = {
   email: "rm@ruthmavisaccessories.co.za",
   phone: "076 213 4488",
+  instagram:
+    "https://www.instagram.com/ruth_mavis_accessories?stkn=MWV4MHB4czdweHczeA%3D%3D&utm_source=qr",
+  facebook: "https://www.facebook.com/share/1GHBK2HVrr/?mibextid=wwXIfr",
   tiktok: "https://www.tiktok.com/@ruthmavisaccessories",
   tiktokHandle: "@ruthmavisaccessories",
   location: "Nelspruit, Mpumalanga, 1201",
@@ -77,6 +80,29 @@ export function SiteFooter() {
               {contactDetails.location}
             </li>
           </ul>
+
+          <div className="mt-6 flex items-center gap-3" aria-label="Social media">
+            <a
+              href={contactDetails.instagram}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram"
+              title="Instagram"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-gold/30 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              <Instagram size={18} />
+            </a>
+            <a
+              href={contactDetails.facebook}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Facebook"
+              title="Facebook"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-gold/30 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              <Facebook size={18} />
+            </a>
+          </div>
         </div>
       </div>
 
