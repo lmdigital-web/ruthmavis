@@ -22,6 +22,8 @@ const categoryOrder = [
   'crochet-bags',
   'devotions',
   'bible-bags',
+  'journals',
+  'other-accessories',
 ];
 
 const sortOptions = [
