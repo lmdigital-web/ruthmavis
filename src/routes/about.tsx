@@ -3,7 +3,6 @@ import { BookHeart, Cross, Sparkles } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { BotanicalSprig, Flourish } from "@/components/Flourish";
-import aboutStory from "@/assets/about-story.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -89,11 +88,11 @@ function AboutPage() {
           <Reveal>
             <div className="overflow-hidden rounded-[2rem] border border-gold/20 shadow-[var(--shadow-soft)]">
               <img
-                src={aboutStory}
-                alt="An open Bible with a journal, tea and dried pink roses in warm morning light"
+                src="https://shop.ruthmavisaccessories.co.za/wp-content/uploads/2026/09/Ruth-Mavis-About-Us-collage.jpg"
+                alt="Ruth Mavis Accessories collection featuring Bibles, journals, a crochet bag and faith-inspired gifts"
                 loading="lazy"
-                width={1200}
-                height={1000}
+                width={1165}
+                height={573}
                 className="h-full w-full object-cover"
               />
             </div>
