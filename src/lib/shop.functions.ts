@@ -10,6 +10,8 @@ const shopCategorySlugs = [
   "bible-bags",
   "journals",
   "other-accessories",
+  "bulk-buying",
+  "other-books",
 ] as const;
 
 export const getProducts = createServerFn({ method: "GET" })
