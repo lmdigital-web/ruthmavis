@@ -151,7 +151,7 @@ function ProductPage() {
                       : (product.image_url ?? undefined)
                   }
                   alt={product.name}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="h-full w-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
 
