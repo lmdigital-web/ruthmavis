@@ -24,6 +24,8 @@ const categoryOrder = [
   'bible-bags',
   'journals',
   'other-accessories',
+  'bulk-buying',
+  'other-books',
 ];
 
 const sortOptions = [
