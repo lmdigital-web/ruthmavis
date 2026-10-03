@@ -173,7 +173,7 @@ function ShopPage() {
                     <img
                       src={product.image_url ?? undefined}
                       alt={product.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="h-full w-full object-contain p-2 transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     {product.stock_quantity <= 0 && (
