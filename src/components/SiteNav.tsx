@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X, User as UserIcon, ShoppingBag } from "lucide-react";
+import { Menu, X, User as UserIcon, UserPlus, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/use-cart";
@@ -100,6 +100,15 @@ export function SiteNav() {
               <UserIcon size={16} className="text-gold" />
               Login
             </a>
+
+            <a
+              href={WOOCOMMERCE_ACCOUNT_URL}
+              onClick={handleAccountClick}
+              className="flex items-center gap-2 rounded-full border border-burgundy/30 bg-burgundy px-4 py-1.5 font-sans text-sm tracking-wide text-white transition-all hover:bg-burgundy/90 active:scale-95"
+            >
+              <UserPlus size={16} />
+              Register
+            </a>
           </div>
 
           <button
@@ -130,14 +139,24 @@ export function SiteNav() {
               </Link>
             ))}
 
-            <a
-              href={WOOCOMMERCE_ACCOUNT_URL}
-              onClick={handleAccountClick}
-              className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-burgundy py-3 font-sans text-sm font-medium text-white transition-opacity hover:opacity-90"
-            >
-              <UserIcon size={16} />
-              Login / My Account
-            </a>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <a
+                href={WOOCOMMERCE_ACCOUNT_URL}
+                onClick={handleAccountClick}
+                className="flex items-center justify-center gap-2 rounded-lg border border-gold/40 bg-gold/5 py-3 font-sans text-sm font-medium text-primary transition-colors hover:bg-gold/15"
+              >
+                <UserIcon size={16} />
+                Login
+              </a>
+              <a
+                href={WOOCOMMERCE_ACCOUNT_URL}
+                onClick={handleAccountClick}
+                className="flex items-center justify-center gap-2 rounded-lg bg-burgundy py-3 font-sans text-sm font-medium text-white transition-opacity hover:opacity-90"
+              >
+                <UserPlus size={16} />
+                Register
+              </a>
+            </div>
           </div>
         </div>
 
