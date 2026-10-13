@@ -36,6 +36,7 @@ export function SiteFooter() {
               { to: "/shop", label: "Shop" },
               { to: "/about", label: "About Us" },
               { to: "/contact", label: "Contact Us" },
+              { to: "/terms-and-conditions", label: "Terms & Conditions" },
             ].map((l) => (
               <li key={l.to}>
                 <Link
