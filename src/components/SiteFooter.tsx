@@ -38,6 +38,7 @@ export function SiteFooter() {
               { to: "/contact", label: "Contact Us" },
               { to: "/terms-and-conditions", label: "Terms & Conditions" },
               { to: "/privacy-policy", label: "Privacy Policy" },
+              { to: "/refund-and-return-policy", label: "Refund & Return Policy" },
             ].map((l) => (
               <li key={l.to}>
                 <Link
