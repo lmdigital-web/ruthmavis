@@ -37,6 +37,7 @@ export function SiteFooter() {
               { to: "/about", label: "About Us" },
               { to: "/contact", label: "Contact Us" },
               { to: "/terms-and-conditions", label: "Terms & Conditions" },
+              { to: "/privacy-policy", label: "Privacy Policy" },
             ].map((l) => (
               <li key={l.to}>
                 <Link
