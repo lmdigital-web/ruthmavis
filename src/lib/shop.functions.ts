@@ -38,6 +38,7 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
   }
 
   const wooIds = [...productsByWooId.keys()];
+  console.log("WooCommerce pricing diagnostic: Supabase products", products.length, "with WooCommerce IDs", wooIds.length);
   if (wooIds.length === 0) return enriched;
 
   const wooProducts: any[] = [];
@@ -54,6 +55,7 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
         continue;
       }
       const result = await response.json();
+      console.log("WooCommerce pricing diagnostic: API status", response.status, "requested IDs", batch.length, "returned products", Array.isArray(result) ? result.length : "not-array");
       if (Array.isArray(result)) wooProducts.push(...result);
     } catch (error) {
       console.error("Unable to load WooCommerce sale prices:", error);
@@ -63,6 +65,7 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
   const wooById = new Map<number, any>(
     wooProducts.map((product) => [Number(product.id), product])
   );
+  console.log("WooCommerce pricing diagnostic: returned IDs", [...wooById.keys()].slice(0, 20));
 
   return enriched.map((product) => {
     const wooId = Number(product.woocommerce_product_id);
@@ -84,6 +87,7 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
     if (currentPrice == null) return product;
 
     const isOnSale = regularPrice != null && currentPrice < regularPrice;
+    if (isOnSale) console.log("WooCommerce pricing diagnostic: sale matched", product.slug, wooId, regularPrice, currentPrice);
     return {
       ...product,
       price: currentPrice,
