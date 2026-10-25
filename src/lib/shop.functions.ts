@@ -45,11 +45,31 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
   for (let index = 0; index < wooIds.length; index += 100) {
     const batch = wooIds.slice(index, index + 100);
     try {
-      const response = await fetch(
-        `${WOOCOMMERCE_STORE_API}/products?include=${batch.join(",")}&per_page=100`,
-        { headers: { Accept: "application/json" } }
-      );
-      if (!response.ok) {
+      const requestUrl = `${WOOCOMMERCE_STORE_API}/products?include=${batch.join(",")}&per_page=100`;
+      const requestTimestamp = new Date().toISOString();
+      const requestUserAgent = "RuthMavisStorefrontPriceSync/1.0 (+https://ruthmavisaccessories.co.za)";
+      const response = await fetch(requestUrl, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": requestUserAgent,
+          "X-RuthMavis-Request": "storefront-price-sync",
+        },
+      });
+      const responseHeaders: Record<string, string> = {};
+      for (const name of ["server", "via", "cf-ray", "x-request-id", "x-mod-security", "x-stackprotect", "content-type"]) {
+        const value = response.headers.get(name);
+        if (value) responseHeaders[name] = value;
+      }
+      console.log("WooCommerce outbound request diagnostic:", {
+        timestampUtc: requestTimestamp,
+        url: requestUrl,
+        method: "GET",
+        userAgent: requestUserAgent,
+        identifyingHeader: "X-RuthMavis-Request: storefront-price-sync",
+        status: response.status,
+        responseHeaders,
+      });
+if (!response.ok) {
         const responseBody = await response.text().catch(() => "");
         console.error("WooCommerce price request failed:", response.status, responseBody.slice(0, 300));
         continue;
