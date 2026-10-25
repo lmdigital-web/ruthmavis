@@ -3,7 +3,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
 
-const WOOCOMMERCE_STORE_API = "https://shop.ruthmavisaccessories.co.za/wp-json/wc/store/v1";
+const WOOCOMMERCE_STORE_API = "https://shop.ruthmavisaccessories.co.za/?rest_route=/wc/store/v1";
 
 function normaliseProductPrice(product: any) {
   const currentPrice = Number(product.price);
@@ -48,7 +48,7 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
 
     try {
       const response = await fetch(
-        `${WOOCOMMERCE_STORE_API}/products?${params.toString()}`,
+        `${WOOCOMMERCE_STORE_API}/products&${params.toString()}`,
         { headers: { Accept: "application/json" } }
       );
       if (!response.ok) {
