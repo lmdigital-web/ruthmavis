@@ -36,31 +36,35 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
 
   if (slugs.length === 0) return enriched;
 
-  // Supabase products do not have a WooCommerce ID column. The two catalogues
-  // share product slugs, so use exact slugs to retrieve the matching Woo prices.
+  // The Store API's slug filter is a single slug, not a comma-separated list.
+  // Query exact slugs individually in small concurrent batches so WooCommerce
+  // reliably returns each matching product's current and regular prices.
   const wooProducts: any[] = [];
-  for (let index = 0; index < slugs.length; index += 25) {
-    const batch = slugs.slice(index, index + 25);
-    const params = new URLSearchParams({
-      slug: batch.join(","),
-      per_page: String(batch.length),
-    });
+  const batches: string[][] = [];
+  for (let index = 0; index < slugs.length; index += 8) {
+    batches.push(slugs.slice(index, index + 8));
+  }
 
-    try {
-      const response = await fetch(
-        `${WOOCOMMERCE_STORE_API}/products?${params.toString()}`,
-        { headers: { Accept: "application/json" } }
-      );
-      if (!response.ok) {
-        console.error("WooCommerce price request failed:", response.status);
-        continue;
+  for (const batch of batches) {
+    const results = await Promise.all(batch.map(async (slug) => {
+      const params = new URLSearchParams({ slug, per_page: "1" });
+      try {
+        const response = await fetch(
+          `${WOOCOMMERCE_STORE_API}/products?${params.toString()}`,
+          { headers: { Accept: "application/json" } }
+        );
+        if (!response.ok) {
+          console.error("WooCommerce price request failed for slug:", slug, response.status);
+          return [];
+        }
+        const result = await response.json();
+        return Array.isArray(result) ? result : [];
+      } catch (error) {
+        console.error("Unable to load WooCommerce price for slug:", slug, error);
+        return [];
       }
-
-      const result = await response.json();
-      if (Array.isArray(result)) wooProducts.push(...result);
-    } catch (error) {
-      console.error("Unable to load WooCommerce sale prices:", error);
-    }
+    }));
+    wooProducts.push(...results.flat());
   }
 
   const wooBySlug = new Map<string, any>(
