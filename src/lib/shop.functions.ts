@@ -28,27 +28,34 @@ function normaliseProductPrice(product: any) {
  */
 async function enrichProductsWithWooCommercePrices(products: any[]) {
   const enriched = products.map(normaliseProductPrice);
-  const productsByWooId = new Map<number, any>();
+  const slugs = [...new Set(
+    products
+      .map((product: any) => String(product.slug ?? "").trim())
+      .filter(Boolean)
+  )];
 
-  for (const product of products) {
-    const wooId = Number(product.woocommerce_product_id);
-    if (Number.isInteger(wooId) && wooId > 0) {
-      productsByWooId.set(wooId, product);
-    }
-  }
+  if (slugs.length === 0) return enriched;
 
-  const wooIds = [...productsByWooId.keys()];
-  if (wooIds.length === 0) return enriched;
-
+  // Supabase products do not have a WooCommerce ID column. The two catalogues
+  // share product slugs, so use exact slugs to retrieve the matching Woo prices.
   const wooProducts: any[] = [];
-  for (let index = 0; index < wooIds.length; index += 100) {
-    const batch = wooIds.slice(index, index + 100);
+  for (let index = 0; index < slugs.length; index += 25) {
+    const batch = slugs.slice(index, index + 25);
+    const params = new URLSearchParams({
+      slug: batch.join(","),
+      per_page: String(batch.length),
+    });
+
     try {
       const response = await fetch(
-        `${WOOCOMMERCE_STORE_API}/products?include=${batch.join(",")}&per_page=100`,
+        `${WOOCOMMERCE_STORE_API}/products?${params.toString()}`,
         { headers: { Accept: "application/json" } }
       );
-      if (!response.ok) continue;
+      if (!response.ok) {
+        console.error("WooCommerce price request failed:", response.status);
+        continue;
+      }
+
       const result = await response.json();
       if (Array.isArray(result)) wooProducts.push(...result);
     } catch (error) {
@@ -56,13 +63,12 @@ async function enrichProductsWithWooCommercePrices(products: any[]) {
     }
   }
 
-  const wooById = new Map<number, any>(
-    wooProducts.map((product) => [Number(product.id), product])
+  const wooBySlug = new Map<string, any>(
+    wooProducts.map((product) => [String(product.slug), product])
   );
 
-  return enriched.map((product) => {
-    const wooId = Number(product.woocommerce_product_id);
-    const wooProduct = wooById.get(wooId);
+  return enriched.map((product: any) => {
+    const wooProduct = wooBySlug.get(String(product.slug ?? ""));
     const prices = wooProduct?.prices;
     if (!prices) return product;
 
