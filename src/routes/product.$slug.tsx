@@ -220,9 +220,16 @@ function ProductPage() {
                   {product.name}
                 </h1>
 
-                <p className="font-serif text-3xl font-bold text-burgundy">
-                  R {finalPrice.toFixed(2)}
-                </p>
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  {product.regular_price != null && Number(product.regular_price) > Number(product.price) && (
+                    <span className="font-serif text-xl text-muted-foreground line-through">
+                      R {(Number(product.regular_price) + variantPrice).toFixed(2)}
+                    </span>
+                  )}
+                  <span className="font-serif text-3xl font-bold text-burgundy">
+                    R {finalPrice.toFixed(2)}
+                  </span>
+                </div>
 
               </div>
 
