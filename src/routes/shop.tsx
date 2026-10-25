@@ -189,9 +189,16 @@ function ShopPage() {
                     <h3 className="line-clamp-1 font-serif text-lg text-primary transition-colors group-hover:text-burgundy">
                       {product.name}
                     </h3>
-                    <p className="font-serif text-xl font-bold text-primary/80">
-                      R {product.price.toFixed(2)}
-                    </p>
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      {product.regular_price != null && Number(product.regular_price) > Number(product.price) && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          R {Number(product.regular_price).toFixed(2)}
+                        </span>
+                      )}
+                      <span className={`font-serif text-xl font-bold ${product.regular_price != null && Number(product.regular_price) > Number(product.price) ? 'text-burgundy' : 'text-primary/80'}`}>
+                        R {Number(product.price).toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </Reveal>
