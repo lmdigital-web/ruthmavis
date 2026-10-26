@@ -185,13 +185,37 @@ async function loadWooCommercePriceMap(): Promise<Map<number, WooPriceRecord>> {
 
     if (refreshFailed) {
       // Cache the failure briefly to stop repeated visitors from retrying the
-      // blocked endpoint. Keep any older local successful cache if one exists.
-      await savePriceCache(edgeCache, {
+      // blocked endpoint. Preserve any previously loaded local prices as a
+      // stale fallback rather than replacing them with an empty map.
+      const failurePayload: WooPriceCachePayload = {
         failed: true,
         fetchedAt: new Date().toISOString(),
         products: [],
-      }, PRICE_FAILURE_CACHE_TTL_SECONDS);
-      return new Map<number, WooPriceRecord>();
+      };
+      try {
+        await edgeCache.put(
+          PRICE_CACHE_KEY,
+          new Response(JSON.stringify(failurePayload), {
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+              "Cache-Control": `public, max-age=${PRICE_FAILURE_CACHE_TTL_SECONDS}`,
+            },
+          }),
+        );
+      } catch (error) {
+        console.error("Unable to cache WooCommerce refresh failure:", error);
+      }
+
+      if (localPriceCache && localPriceCache.prices.size > 0) {
+        localPriceCache.expiresAt = Date.now() + PRICE_FAILURE_CACHE_TTL_SECONDS * 1000;
+        return localPriceCache.prices;
+      }
+
+      localPriceCache = {
+        expiresAt: Date.now() + PRICE_FAILURE_CACHE_TTL_SECONDS * 1000,
+        prices: new Map<number, WooPriceRecord>(),
+      };
+      return localPriceCache.prices;
     }
 
     const payload: WooPriceCachePayload = {
