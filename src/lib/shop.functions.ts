@@ -5,6 +5,34 @@ import { supabase } from "@/integrations/supabase/client";
 
 const WOOCOMMERCE_STORE_API = "https://shop.ruthmavisaccessories.co.za/wp-json/wc/store/v1";
 
+// Cache successful price data for one hour and cache failed refreshes for 15 minutes.
+// This prevents every storefront visit from triggering three WooCommerce API requests.
+const PRICE_CACHE_TTL_SECONDS = 60 * 60;
+const PRICE_FAILURE_CACHE_TTL_SECONDS = 15 * 60;
+const PRICE_CACHE_KEY = new Request(
+  "https://ruthmavisaccessories.co.za/__internal-cache/woocommerce-price-map-v1",
+  { method: "GET" },
+);
+
+type WooPriceRecord = {
+  id: number;
+  prices: {
+    price?: string | number | null;
+    regular_price?: string | number | null;
+    sale_price?: string | number | null;
+    currency_minor_unit?: number;
+  } | null;
+};
+
+type WooPriceCachePayload = {
+  failed?: boolean;
+  fetchedAt: string;
+  products: WooPriceRecord[];
+};
+
+let localPriceCache: { expiresAt: number; prices: Map<number, WooPriceRecord> } | null = null;
+let priceRefreshInFlight: Promise<Map<number, WooPriceRecord>> | null = null;
+
 function normaliseProductPrice(product: any) {
   const currentPrice = Number(product.price);
   const regularPrice = Number(product.regular_price ?? product.price);
@@ -21,76 +49,178 @@ function normaliseProductPrice(product: any) {
   };
 }
 
+function priceMapFromPayload(payload: WooPriceCachePayload): Map<number, WooPriceRecord> {
+  return new Map(
+    (payload.products || [])
+      .filter((product) => Number.isInteger(Number(product.id)))
+      .map((product) => [Number(product.id), product]),
+  );
+}
+
+async function savePriceCache(
+  cache: Cache | undefined,
+  payload: WooPriceCachePayload,
+  ttlSeconds: number,
+) {
+  const prices = priceMapFromPayload(payload);
+  localPriceCache = { expiresAt: Date.now() + ttlSeconds * 1000, prices };
+
+  if (cache) {
+    try {
+      await cache.put(
+        PRICE_CACHE_KEY,
+        new Response(JSON.stringify(payload), {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": `public, max-age=${ttlSeconds}`,
+          },
+        }),
+      );
+    } catch (error) {
+      console.error("Unable to persist WooCommerce price cache:", error);
+    }
+  }
+
+  return prices;
+}
+
+async function loadWooCommercePriceMap(): Promise<Map<number, WooPriceRecord>> {
+  if (localPriceCache && localPriceCache.expiresAt > Date.now()) {
+    return localPriceCache.prices;
+  }
+
+  if (priceRefreshInFlight) return priceRefreshInFlight;
+
+  priceRefreshInFlight = (async () => {
+    const edgeCache = (globalThis as any).caches?.default as Cache | undefined;
+
+    if (edgeCache) {
+      try {
+        const cachedResponse = await edgeCache.match(PRICE_CACHE_KEY);
+        if (cachedResponse) {
+          const payload = await cachedResponse.json() as WooPriceCachePayload;
+          const ttl = payload.failed ? PRICE_FAILURE_CACHE_TTL_SECONDS : PRICE_CACHE_TTL_SECONDS;
+          const prices = priceMapFromPayload(payload);
+          localPriceCache = { expiresAt: Date.now() + ttl * 1000, prices };
+          console.log("WooCommerce pricing cache:", payload.failed ? "recent refresh failed; suppressing retries" : "hit", "products", prices.size);
+          return prices;
+        }
+      } catch (error) {
+        console.error("Unable to read WooCommerce price cache:", error);
+      }
+    }
+
+    // Never fall back to uncached per-request API calls. If the shared Worker
+    // cache is unavailable, use Supabase prices rather than risk another request storm.
+    if (!edgeCache) {
+      console.error("WooCommerce pricing cache unavailable; using Supabase price fallback without calling WooCommerce.");
+      return new Map<number, WooPriceRecord>();
+    }
+
+    const { data: products, error } = await supabase
+      .from("products")
+      .select("woocommerce_product_id")
+      .eq("is_active", true);
+
+    if (error || !products) {
+      console.error("Unable to load product IDs for WooCommerce price refresh:", error);
+      return new Map<number, WooPriceRecord>();
+    }
+
+    const ids = [...new Set(products
+      .map((product: any) => Number(product.woocommerce_product_id))
+      .filter((id: number) => Number.isInteger(id) && id > 0))];
+
+    if (ids.length === 0) {
+      return savePriceCache(edgeCache, { fetchedAt: new Date().toISOString(), products: [] }, PRICE_CACHE_TTL_SECONDS);
+    }
+
+    const fetchedProducts: WooPriceRecord[] = [];
+    let refreshFailed = false;
+
+    for (let index = 0; index < ids.length; index += 100) {
+      const batch = ids.slice(index, index + 100);
+      const requestUrl = `${WOOCOMMERCE_STORE_API}/products?include=${batch.join(",")}&per_page=100`;
+
+      try {
+        const response = await fetch(requestUrl, {
+          headers: {
+            Accept: "application/json",
+            "User-Agent": "RuthMavisStorefrontPriceSync/1.0 (+https://ruthmavisaccessories.co.za)",
+            "X-RuthMavis-Request": "storefront-price-sync",
+          },
+        });
+
+        console.log("WooCommerce price refresh:", {
+          timestampUtc: new Date().toISOString(),
+          requestedProducts: batch.length,
+          status: response.status,
+          cfRay: response.headers.get("cf-ray"),
+        });
+
+        if (!response.ok) {
+          const responseBody = await response.text().catch(() => "");
+          console.error("WooCommerce price refresh failed:", response.status, responseBody.slice(0, 200));
+          refreshFailed = true;
+          break;
+        }
+
+        const result = await response.json();
+        if (!Array.isArray(result)) {
+          console.error("WooCommerce price refresh returned an unexpected response.");
+          refreshFailed = true;
+          break;
+        }
+
+        fetchedProducts.push(...result.map((product: any) => ({
+          id: Number(product.id),
+          prices: product.prices ?? null,
+        })));
+      } catch (error) {
+        console.error("WooCommerce price refresh request failed:", error);
+        refreshFailed = true;
+        break;
+      }
+    }
+
+    if (refreshFailed) {
+      // Cache the failure briefly to stop repeated visitors from retrying the
+      // blocked endpoint. Keep any older local successful cache if one exists.
+      await savePriceCache(edgeCache, {
+        failed: true,
+        fetchedAt: new Date().toISOString(),
+        products: [],
+      }, PRICE_FAILURE_CACHE_TTL_SECONDS);
+      return new Map<number, WooPriceRecord>();
+    }
+
+    const payload: WooPriceCachePayload = {
+      fetchedAt: new Date().toISOString(),
+      products: fetchedProducts,
+    };
+    console.log("WooCommerce price refresh succeeded; cached products:", fetchedProducts.length);
+    return savePriceCache(edgeCache, payload, PRICE_CACHE_TTL_SECONDS);
+  })();
+
+  try {
+    return await priceRefreshInFlight;
+  } finally {
+    priceRefreshInFlight = null;
+  }
+}
+
 /**
- * Read public WooCommerce Store API prices so the main React storefront uses
- * WooCommerce's active price while retaining the regular price for sale display.
- * If a WooCommerce request fails, keep the existing Supabase price as a fallback.
+ * Use cached WooCommerce pricing to enrich Supabase products. Successful data is
+ * cached at the Cloudflare edge for one hour; failed refreshes are suppressed for
+ * 15 minutes to prevent request storms. Supabase remains the fallback source.
  */
 async function enrichProductsWithWooCommercePrices(products: any[]) {
   const enriched = products.map(normaliseProductPrice);
-  const productsByWooId = new Map<number, any>();
-
-  for (const product of products) {
-    const wooId = Number(product.woocommerce_product_id);
-    if (Number.isInteger(wooId) && wooId > 0) {
-      productsByWooId.set(wooId, product);
-    }
-  }
-
-  const wooIds = [...productsByWooId.keys()];
-  console.log("WooCommerce pricing diagnostic: Supabase products", products.length, "with WooCommerce IDs", wooIds.length);
-  if (wooIds.length === 0) return enriched;
-
-  const wooProducts: any[] = [];
-  for (let index = 0; index < wooIds.length; index += 100) {
-    const batch = wooIds.slice(index, index + 100);
-    try {
-      const requestUrl = `${WOOCOMMERCE_STORE_API}/products?include=${batch.join(",")}&per_page=100`;
-      const requestTimestamp = new Date().toISOString();
-      const requestUserAgent = "RuthMavisStorefrontPriceSync/1.0 (+https://ruthmavisaccessories.co.za)";
-      const response = await fetch(requestUrl, {
-        headers: {
-          Accept: "application/json",
-          "User-Agent": requestUserAgent,
-          "X-RuthMavis-Request": "storefront-price-sync",
-        },
-      });
-      const responseHeaders: Record<string, string> = {};
-      for (const name of ["server", "via", "cf-ray", "x-request-id", "x-mod-security", "x-stackprotect", "content-type"]) {
-        const value = response.headers.get(name);
-        if (value) responseHeaders[name] = value;
-      }
-      console.log("WooCommerce outbound request diagnostic:", {
-        timestampUtc: requestTimestamp,
-        url: requestUrl,
-        method: "GET",
-        userAgent: requestUserAgent,
-        identifyingHeader: "X-RuthMavis-Request: storefront-price-sync",
-        status: response.status,
-        responseHeaders,
-      });
-if (!response.ok) {
-        const responseBody = await response.text().catch(() => "");
-        console.error("WooCommerce price request failed:", response.status, responseBody.slice(0, 300));
-        continue;
-      }
-      const result = await response.json();
-      console.log("WooCommerce pricing diagnostic: API status", response.status, "requested IDs", batch.length, "returned products", Array.isArray(result) ? result.length : "not-array");
-      if (Array.isArray(result)) wooProducts.push(...result);
-    } catch (error) {
-      console.error("Unable to load WooCommerce sale prices:", error);
-    }
-  }
-
-  const wooById = new Map<number, any>(
-    wooProducts.map((product) => [Number(product.id), product])
-  );
-  console.log("WooCommerce pricing diagnostic: returned IDs", [...wooById.keys()].slice(0, 20));
+  const wooProductsById = await loadWooCommercePriceMap();
 
   return enriched.map((product) => {
     const wooId = Number(product.woocommerce_product_id);
-    const wooProduct = wooById.get(wooId);
-    const prices = wooProduct?.prices;
+    const prices = wooProductsById.get(wooId)?.prices;
     if (!prices) return product;
 
     const minorUnit = Number(prices.currency_minor_unit ?? 2);
@@ -107,7 +237,6 @@ if (!response.ok) {
     if (currentPrice == null) return product;
 
     const isOnSale = regularPrice != null && currentPrice < regularPrice;
-    if (isOnSale) console.log("WooCommerce pricing diagnostic: sale matched", product.slug, wooId, regularPrice, currentPrice);
     return {
       ...product,
       price: currentPrice,
