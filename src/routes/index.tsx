@@ -103,6 +103,34 @@ function HomePage() {
 
   return (
     <>
+      {/* Black Friday promotion */}
+      <section
+        aria-label="Black Friday promotion"
+        className="relative isolate overflow-hidden border-b border-[#C8A96B]/40 bg-[#4A1515] px-5 py-7 text-center text-[#FFF8EE] sm:py-9"
+      >
+        <div className="pointer-events-none absolute inset-2 rounded-xl border border-[#C8A96B]/35 sm:inset-3" />
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center">
+          <span className="font-sans text-[0.62rem] font-medium tracking-[0.34em] text-[#E6CC98] uppercase sm:text-xs">
+            Ruth Mavis Accessories · Special Event
+          </span>
+          <h2 className="mt-2 font-display text-3xl font-medium tracking-[0.08em] text-[#FFF8EE] sm:text-4xl md:text-5xl">
+            Black Friday
+          </h2>
+          <p className="mt-1 font-script text-2xl italic text-[#E6CC98] sm:text-3xl">
+            Has Started!
+          </p>
+          <p className="mt-3 font-sans text-xs tracking-[0.12em] text-[#F6E9D8] sm:text-sm">
+            02 November – 04 December 2026
+          </p>
+          <Link
+            to="/shop"
+            className="mt-5 inline-flex items-center justify-center rounded-full border border-[#E6CC98] bg-[#E6CC98] px-7 py-3 font-sans text-xs font-semibold tracking-[0.12em] text-[#4A1515] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#F2DDAF] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E6CC98]"
+          >
+            Shop Black Friday
+          </Link>
+        </div>
+      </section>
+
       {/* Hero */}
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-20 bg-gradient-to-b from-blush/70 via-cream to-background" />
