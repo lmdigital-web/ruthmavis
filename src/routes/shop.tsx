@@ -3,7 +3,6 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
 import { getProducts, getCategories } from '@/lib/shop.functions';
 import { SectionHeading } from '@/components/SectionHeading';
-import { PayflexWidget } from '@/components/PayflexWidget';
 import { Reveal } from '@/components/Reveal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -200,7 +199,6 @@ function ShopPage() {
                         R {Number(product.price).toFixed(2)}
                       </span>
                     </div>
-                    <PayflexWidget amount={Number(product.price)} className="mt-2" />
                   </div>
                 </Link>
               </Reveal>
