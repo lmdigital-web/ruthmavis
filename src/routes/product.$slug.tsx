@@ -11,6 +11,7 @@ import { useState, useRef } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { PayflexWidget } from '@/components/PayflexWidget';
 
 export const Route = createFileRoute('/product/$slug')({
   component: ProductPage,
@@ -230,6 +231,8 @@ function ProductPage() {
                     R {finalPrice.toFixed(2)}
                   </span>
                 </div>
+
+                <PayflexWidget amount={finalPrice} className="mt-2" />
 
               </div>
 
